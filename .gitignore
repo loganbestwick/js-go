@@ -3,7 +3,7 @@
 *.iml
 
 # Generated files
-/parser/gen_*.go
+/parser/*.gen.go
 
 /js-go
 /y.output
