@@ -2,4 +2,8 @@
 .idea
 *.iml
 
+# Generated files
+/parser/gen_*.go
+
 /js-go
+/y.output

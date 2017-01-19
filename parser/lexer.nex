@@ -1,0 +1,3 @@
+/[0-9]+/          { lval.s = yylex.Text(); return NUMBER }
+//
+package parser

@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"github.com/loganbestwick/js-go/parser"
+	"bytes"
 )
 
 func main() {
@@ -15,5 +17,8 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Print(string(buf))
+	fmt.Println(string(buf))
+	fmt.Println("--- OUTPUT ---")
+
+	parser.Parse(bytes.NewReader(buf))
 }
