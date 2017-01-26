@@ -1,13 +1,18 @@
 %{
 package parser
+
+import "github.com/loganbestwick/js-go/syntax"
 %}
 
 %union {
   s string
-  node Node
+  node syntax.Node
 }
 
 %token NUMBER
+%token ADD
+
+//%left ADD
 
 %%
 program: expr
@@ -17,6 +22,10 @@ program: expr
 
 expr: NUMBER
 {
-  $$ = node($1)
+  $$ = createValueNode($1)
+}
+| expr ADD expr
+{
+  $$ = createAddNode($1, $3)
 }
 %%

@@ -1,24 +1,29 @@
 package parser
 
 import (
+	"github.com/loganbestwick/js-go/syntax"
 	"io"
-	"github.com/davecgh/go-spew/spew"
 )
 
-type Node struct {
-	s string
-}
-
-func node(o yySymType) yySymType {
-	return yySymType{
-		node: Node{s: o.s},
+func createValueNode(o yySymType) yySymType {
+	node := syntax.ValueNode{
+		Value: o.s,
 	}
+	return yySymType{node: node}
 }
 
-func Parse(reader io.Reader) {
+func createAddNode(left yySymType, right yySymType) yySymType {
+	node := syntax.AddNode{
+		Left:  left.node,
+		Right: right.node,
+	}
+	return yySymType{node: node}
+}
+
+func Parse(reader io.Reader) syntax.Node {
 	lexer := NewLexer(reader)
 	yyParse(lexer)
-	spew.Dump(lexer.parseResult.(yySymType).node)
+	return lexer.parseResult.(yySymType).node
 }
 
 func setParseResult(lexer interface{}, o yySymType) {

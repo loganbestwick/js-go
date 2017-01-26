@@ -1,11 +1,12 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
+	"github.com/davecgh/go-spew/spew"
+	"github.com/loganbestwick/js-go/parser"
 	"io/ioutil"
 	"os"
-	"github.com/loganbestwick/js-go/parser"
-	"bytes"
 )
 
 func main() {
@@ -17,8 +18,17 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	fmt.Println("--- INPUT ---")
 	fmt.Println(string(buf))
-	fmt.Println("--- OUTPUT ---")
+	fmt.Println("--- PARSE ---")
 
-	parser.Parse(bytes.NewReader(buf))
+	node := parser.Parse(bytes.NewReader(buf))
+	spew.Dump(node)
+
+	fmt.Println("--- OUTPUT ---")
+	result, err := node.Eval()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(result)
 }
