@@ -18,7 +18,7 @@ func node(o yySymType) yySymType {
 func Parse(reader io.Reader) {
 	lexer := NewLexer(reader)
 	yyParse(lexer)
-	spew.Dump(lexer)
+	spew.Dump(lexer.parseResult.(yySymType).node)
 }
 
 func setParseResult(lexer interface{}, o yySymType) {
