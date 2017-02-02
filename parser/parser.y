@@ -12,7 +12,7 @@ import "github.com/loganbestwick/js-go/syntax"
 %token NUMBER
 %token ADD
 
-//%left ADD
+%left ADD
 
 %%
 program: expr
