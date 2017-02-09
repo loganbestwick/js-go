@@ -1,16 +1,25 @@
+.PHONY: all precommit setup test build run fix gen
+
 setup:
 	go get github.com/blynn/nex
 
-gen:
+clean:
+	-rm y.output
+
+gen: clean
 	go tool yacc -o=parser/parser.gen.go parser/parser.y
 	nex -o parser/lexer.gen.go parser/lexer.nex
 
-precommit:
+fix:
 	gofmt -w -l .
 	goimports -w -l .
 
-build: gen
+test:
+	go test ./...
+
+precommit: fix test
+
+build: clean gen test
 	go build
 
-clean:
-	-rm y.output
+all: clean setup build
