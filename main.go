@@ -3,10 +3,11 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"github.com/davecgh/go-spew/spew"
-	"github.com/loganbestwick/js-go/parser"
 	"io/ioutil"
 	"os"
+
+	"github.com/davecgh/go-spew/spew"
+	"github.com/loganbestwick/js-go/parser"
 )
 
 func main() {

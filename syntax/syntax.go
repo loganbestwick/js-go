@@ -2,10 +2,12 @@ package syntax
 
 import (
 	"strconv"
+
+	"github.com/loganbestwick/js-go/types"
 )
 
 type Node interface {
-	Eval() (string, error)
+	Eval() (types.Value, error)
 }
 
 type AddNode struct {
@@ -13,30 +15,34 @@ type AddNode struct {
 	Right Node
 }
 
-func (n AddNode) Eval() (string, error) {
-	lval, err := n.Left.Eval()
+func (n AddNode) Eval() (types.Value, error) {
+	lv, err := n.Left.Eval()
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	rval, err := n.Right.Eval()
+	rv, err := n.Right.Eval()
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	a, err := strconv.Atoi(lval)
-	if err != nil {
-		return "", err
-	}
-	b, err := strconv.Atoi(rval)
-	if err != nil {
-		return "", err
-	}
-	return strconv.Itoa(a + b), nil
+	return lv.Add(rv)
 }
 
-type ValueNode struct {
+type NumberNode struct {
 	Value string
 }
 
-func (n ValueNode) Eval() (string, error) {
-	return n.Value, nil
+func (t NumberNode) Eval() (types.Value, error) {
+	i, err := strconv.ParseInt(t.Value, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+	return types.IntegerValue{Value: i}, nil
+}
+
+type StringNode struct {
+	Value string
+}
+
+func (t StringNode) Eval() (types.Value, error) {
+	return types.StringValue{Value: t.Value[1 : len(t.Value)-1]}, nil
 }

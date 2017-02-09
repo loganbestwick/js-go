@@ -10,6 +10,7 @@ import "github.com/loganbestwick/js-go/syntax"
 }
 
 %token NUMBER
+%token STRING
 %token ADD
 
 %left ADD
@@ -22,7 +23,11 @@ program: expr
 
 expr: NUMBER
 {
-  $$ = createValueNode($1)
+  $$ = createNumberNode($1)
+}
+| STRING
+{
+  $$ = createStringNode($1)
 }
 | expr ADD expr
 {

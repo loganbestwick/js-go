@@ -1,12 +1,20 @@
 package parser
 
 import (
-	"github.com/loganbestwick/js-go/syntax"
 	"io"
+
+	"github.com/loganbestwick/js-go/syntax"
 )
 
-func createValueNode(o yySymType) yySymType {
-	node := syntax.ValueNode{
+func createNumberNode(o yySymType) yySymType {
+	node := syntax.NumberNode{
+		Value: o.s,
+	}
+	return yySymType{node: node}
+}
+
+func createStringNode(o yySymType) yySymType {
+	node := syntax.StringNode{
 		Value: o.s,
 	}
 	return yySymType{node: node}

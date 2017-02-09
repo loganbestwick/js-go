@@ -1,3 +1,4 @@
+/'[^']'/          { lval.s = yylex.Text(); return STRING }
 /[0-9]+/          { lval.s = yylex.Text(); return NUMBER }
 /\+/              { return ADD }
 //
