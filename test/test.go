@@ -42,6 +42,7 @@ func assertEval(code string, value types.Value) {
 			spew.Dump(result)
 			fmt.Println("-- ERR --")
 			spew.Dump(err)
+			fmt.Println("-- END --")
 		}
 		So(err, ShouldBeNil)
 		So(result, ShouldResemble, value)

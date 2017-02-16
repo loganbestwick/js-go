@@ -8,7 +8,7 @@ List of features we intend to implement:
 
 * ~~Parsing & Lexing~~ DONE
 * ~~Abstract Syntax Tree~~ DONE
-* Type System
+* ~~Type System~~ DONE-ish (Just strings and integers for now)
 * Operators
 * Variables
 * Conditionals (if, if-else, maybe case)
