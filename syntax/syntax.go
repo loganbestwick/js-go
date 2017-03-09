@@ -4,18 +4,27 @@ import (
 	"strconv"
 
 	"github.com/loganbestwick/js-go/types"
+	"fmt"
+	"code.justin.tv/web/audrey/_vendor/github.com/davecgh/go-spew/spew"
+)
+
+
+const (
+	ADD_OP = "+"
+	SUBTRACT_OP = "-"
 )
 
 type Node interface {
 	Eval() (types.Value, error)
 }
 
-type AddNode struct {
+type BinaryOpNode struct {
 	Left  Node
 	Right Node
+	Operator string
 }
 
-func (n AddNode) Eval() (types.Value, error) {
+func (n BinaryOpNode) Eval() (types.Value, error) {
 	lv, err := n.Left.Eval()
 	if err != nil {
 		return nil, err
@@ -24,7 +33,15 @@ func (n AddNode) Eval() (types.Value, error) {
 	if err != nil {
 		return nil, err
 	}
-	return lv.Add(rv)
+	spew.Dump(lv)
+	switch n.Operator {
+	case ADD_OP:
+		return lv.Add(rv)
+	case SUBTRACT_OP:
+		return lv.Subtract(rv)
+	default:
+		return nil, fmt.Errorf("operator %s not recognized", n.Operator)
+	}
 }
 
 type NumberNode struct {

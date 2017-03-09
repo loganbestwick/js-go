@@ -2,6 +2,7 @@ package types
 
 import (
 	"strconv"
+	"code.justin.tv/web/audrey/_vendor/github.com/davecgh/go-spew/spew"
 )
 
 type Value interface {
@@ -11,6 +12,7 @@ type Value interface {
 	ToIntegerValue() (IntegerValue, error)
 
 	Add(Value) (Value, error)
+	Subtract(Value) (Value, error)
 }
 
 var _ Value = StringValue{}
@@ -41,6 +43,14 @@ func (t StringValue) Add(v Value) (Value, error) {
 	return StringValue{Value: t.Value + sv.Value}, nil
 }
 
+func (t StringValue) Subtract(v Value) (Value, error) {
+	iv, err := t.ToIntegerValue();
+	if err != nil {
+		return StringValue{Value: t.Value}, nil
+	}
+	return IntegerValue{Value: iv.Value}.Subtract(v)
+}
+
 type IntegerValue struct {
 	Value int64
 }
@@ -63,4 +73,16 @@ func (t IntegerValue) Add(v Value) (Value, error) {
 		return IntegerValue{Value: t.Value + iv.Value}, nil
 	}
 	return t.ToStringValue().Add(v)
+}
+
+func (t IntegerValue) Subtract(v Value) (Value, error) {
+	spew.Dump(t)
+	if iv, ok := v.(IntegerValue); ok {
+		return IntegerValue{Value: t.Value - iv.Value}, nil
+	}
+	iv, err := v.ToIntegerValue()
+	if err != nil {
+		return StringValue{Value: "NaN"}, nil
+	}
+	return IntegerValue{Value: t.Value - iv.Value}, nil
 }

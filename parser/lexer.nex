@@ -1,5 +1,5 @@
 /'[^']'/          { lval.s = yylex.Text(); return STRING }
 /[0-9]+/          { lval.s = yylex.Text(); return NUMBER }
-/\+/              { return ADD }
+/[\+\-]/          { lval.s = yylex.Text(); return BINARY_OPERATOR }
 //
 package parser

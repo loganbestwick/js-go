@@ -16,4 +16,18 @@ func TestOperators(t *testing.T) {
 		assertEval("1 + '2'", strVal("12"))
 		assertEval("1 + '2' + 3", strVal("123"))
 	})
+
+	Convey("Subtraction", t, func() {
+		assertEval("2 - 1", intVal(1))
+		assertEval("5 - 2", intVal(3))
+		assertEval("5 - 2 - 1", intVal(2))
+		assertEval("1 - 2", intVal(-1))
+		assertEval("1 - 2 - 3", intVal(-4))
+
+		assertEval("'1' - 1", intVal(0))
+		assertEval("1 - '1'", intVal(0))
+		assertEval("'1' - '1'", intVal(0))
+
+		assertEval("'a' - 1", strVal("NaN"))
+	})
 }
