@@ -2,6 +2,7 @@
 package parser
 
 import "github.com/loganbestwick/js-go/syntax"
+import "fmt"
 %}
 
 %union {

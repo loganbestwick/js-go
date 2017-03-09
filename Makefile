@@ -10,6 +10,10 @@ gen: clean
 	go tool yacc -o=parser/parser.gen.go parser/parser.y
 	nex -o parser/lexer.gen.go parser/lexer.nex
 
+gen8: clean
+	~/go/bin/yacc -o=parser/parser.gen.go parser/parser.y
+	nex -o parser/lexer.gen.go parser/lexer.nex
+
 fix:
 	gofmt -w -l .
 	goimports -w -l .

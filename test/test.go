@@ -30,6 +30,10 @@ func intVal(i int64) types.IntegerValue {
 	return types.IntegerValue{Value: i}
 }
 
+func nanVal() types.IntegerValue {
+	return types.NaN
+}
+
 func strVal(s string) types.StringValue {
 	return types.StringValue{Value: s}
 }

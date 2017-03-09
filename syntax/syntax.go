@@ -1,16 +1,14 @@
 package syntax
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/loganbestwick/js-go/types"
-	"fmt"
-	"code.justin.tv/web/audrey/_vendor/github.com/davecgh/go-spew/spew"
 )
 
-
 const (
-	ADD_OP = "+"
+	ADD_OP      = "+"
 	SUBTRACT_OP = "-"
 )
 
@@ -19,8 +17,8 @@ type Node interface {
 }
 
 type BinaryOpNode struct {
-	Left  Node
-	Right Node
+	Left     Node
+	Right    Node
 	Operator string
 }
 
@@ -33,7 +31,6 @@ func (n BinaryOpNode) Eval() (types.Value, error) {
 	if err != nil {
 		return nil, err
 	}
-	spew.Dump(lv)
 	switch n.Operator {
 	case ADD_OP:
 		return lv.Add(rv)
@@ -49,6 +46,9 @@ type NumberNode struct {
 }
 
 func (t NumberNode) Eval() (types.Value, error) {
+	if t.Value == "NaN" {
+		return types.NaN, nil
+	}
 	i, err := strconv.ParseInt(t.Value, 10, 64)
 	if err != nil {
 		return nil, err

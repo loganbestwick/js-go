@@ -11,6 +11,10 @@ func TestConstants(t *testing.T) {
 		assertEval("1", intVal(1))
 	})
 
+	Convey("NaN", t, func() {
+		assertEval("NaN", nanVal())
+	})
+
 	Convey("Strings", t, func() {
 		assertEval("'1'", strVal("1"))
 	})
