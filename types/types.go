@@ -8,7 +8,7 @@ type Value interface {
 	ToString() string
 
 	ToStringValue() StringValue
-	ToIntegerValue() IntegerValue
+	ToNumberValue() NumberValue
 
 	// Rules for addition:
 	// If either operand is a string, do string concatenation
@@ -22,10 +22,10 @@ type Value interface {
 
 // Interface assertions
 var _ Value = StringValue{}
-var _ Value = IntegerValue{}
+var _ Value = NumberValue{}
 
 // Constants definition
-var NaN IntegerValue = IntegerValue{NaN: true}
+var NaN NumberValue = NumberValue{NaN: true}
 
 type StringValue struct {
 	Value string
@@ -39,12 +39,12 @@ func (t StringValue) ToStringValue() StringValue {
 	return t
 }
 
-func (t StringValue) ToIntegerValue() IntegerValue {
+func (t StringValue) ToNumberValue() NumberValue {
 	i, err := strconv.ParseInt(t.Value, 10, 64)
 	if err != nil {
 		return NaN
 	}
-	return IntegerValue{Value: i}
+	return NumberValue{Value: i}
 }
 
 func (t StringValue) Add(v Value) (Value, error) {
@@ -53,22 +53,22 @@ func (t StringValue) Add(v Value) (Value, error) {
 }
 
 func (t StringValue) Subtract(v Value) (Value, error) {
-	return t.ToIntegerValue().Subtract(v)
+	return t.ToNumberValue().Subtract(v)
 }
 
-type IntegerValue struct {
+type NumberValue struct {
 	NaN   bool
 	Value int64
 }
 
-func (t IntegerValue) ToString() string {
+func (t NumberValue) ToString() string {
 	if t.NaN {
 		return "NaN"
 	}
 	return strconv.FormatInt(t.Value, 10)
 }
 
-func (t IntegerValue) ToStringValue() StringValue {
+func (t NumberValue) ToStringValue() StringValue {
 	if t.NaN {
 		return StringValue{Value: "NaN"}
 	}
@@ -76,24 +76,24 @@ func (t IntegerValue) ToStringValue() StringValue {
 	return StringValue{Value: s}
 }
 
-func (t IntegerValue) ToIntegerValue() IntegerValue {
+func (t NumberValue) ToNumberValue() NumberValue {
 	return t
 }
 
-func (t IntegerValue) Add(v Value) (Value, error) {
-	if iv, ok := v.(IntegerValue); ok {
+func (t NumberValue) Add(v Value) (Value, error) {
+	if iv, ok := v.(NumberValue); ok {
 		if t.NaN || iv.NaN {
 			return NaN, nil
 		}
-		return IntegerValue{Value: t.Value + iv.Value}, nil
+		return NumberValue{Value: t.Value + iv.Value}, nil
 	}
 	return t.ToStringValue().Add(v)
 }
 
-func (t IntegerValue) Subtract(v Value) (Value, error) {
-	iv := v.ToIntegerValue()
+func (t NumberValue) Subtract(v Value) (Value, error) {
+	iv := v.ToNumberValue()
 	if t.NaN || iv.NaN {
 		return NaN, nil
 	}
-	return IntegerValue{Value: t.Value - iv.Value}, nil
+	return NumberValue{Value: t.Value - iv.Value}, nil
 }

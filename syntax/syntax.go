@@ -53,7 +53,7 @@ func (t NumberNode) Eval() (types.Value, error) {
 	if err != nil {
 		return nil, err
 	}
-	return types.IntegerValue{Value: i}, nil
+	return types.NumberValue{Value: i}, nil
 }
 
 type StringNode struct {
