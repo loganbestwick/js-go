@@ -26,8 +26,12 @@ func eval(code string) (types.Value, error) {
 	return node.Eval()
 }
 
-func intVal(i int64) types.IntegerValue {
-	return types.IntegerValue{Value: i}
+func intVal(i int64) types.NumberValue {
+	return types.NumberValue{Value: i}
+}
+
+func nanVal() types.NumberValue {
+	return types.NaN
 }
 
 func strVal(s string) types.StringValue {

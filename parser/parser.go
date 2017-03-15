@@ -20,10 +20,11 @@ func createStringNode(o yySymType) yySymType {
 	return yySymType{node: node}
 }
 
-func createAddNode(left yySymType, right yySymType) yySymType {
-	node := syntax.AddNode{
-		Left:  left.node,
-		Right: right.node,
+func createBinaryOpNode(operator yySymType, left yySymType, right yySymType) yySymType {
+	node := syntax.BinaryOpNode{
+		Left:     left.node,
+		Right:    right.node,
+		Operator: operator.s,
 	}
 	return yySymType{node: node}
 }

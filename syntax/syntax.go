@@ -1,21 +1,28 @@
 package syntax
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/loganbestwick/js-go/types"
+)
+
+const (
+	ADD_OP      = "+"
+	SUBTRACT_OP = "-"
 )
 
 type Node interface {
 	Eval() (types.Value, error)
 }
 
-type AddNode struct {
-	Left  Node
-	Right Node
+type BinaryOpNode struct {
+	Left     Node
+	Right    Node
+	Operator string
 }
 
-func (n AddNode) Eval() (types.Value, error) {
+func (n BinaryOpNode) Eval() (types.Value, error) {
 	lv, err := n.Left.Eval()
 	if err != nil {
 		return nil, err
@@ -24,7 +31,14 @@ func (n AddNode) Eval() (types.Value, error) {
 	if err != nil {
 		return nil, err
 	}
-	return lv.Add(rv)
+	switch n.Operator {
+	case ADD_OP:
+		return lv.Add(rv)
+	case SUBTRACT_OP:
+		return lv.Subtract(rv)
+	default:
+		return nil, fmt.Errorf("operator %s not recognized", n.Operator)
+	}
 }
 
 type NumberNode struct {
@@ -32,11 +46,14 @@ type NumberNode struct {
 }
 
 func (t NumberNode) Eval() (types.Value, error) {
+	if t.Value == "NaN" {
+		return types.NaN, nil
+	}
 	i, err := strconv.ParseInt(t.Value, 10, 64)
 	if err != nil {
 		return nil, err
 	}
-	return types.IntegerValue{Value: i}, nil
+	return types.NumberValue{Value: i}, nil
 }
 
 type StringNode struct {
