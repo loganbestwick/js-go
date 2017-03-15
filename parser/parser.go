@@ -29,6 +29,14 @@ func createBinaryOpNode(operator yySymType, left yySymType, right yySymType) yyS
 	return yySymType{node: node}
 }
 
+func createAssignmentNode(left yySymType, right yySymType) yySymType {
+	node := syntax.AssignmentNode{
+		Left: left.s,
+		Right: right.node,
+	}
+	return yySymType{node: node}
+}
+
 func Parse(reader io.Reader) syntax.Node {
 	lexer := NewLexer(reader)
 	yyParse(lexer)

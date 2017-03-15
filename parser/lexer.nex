@@ -2,5 +2,6 @@
 /[0-9]+/          { lval.s = yylex.Text(); return NUMBER }
 /NaN/             { lval.s = yylex.Text(); return NUMBER }
 /[\+\-]/          { lval.s = yylex.Text(); return BINARY_OPERATOR }
+/[=]/             { lval.s = yylex.Text(); return ASSIGNMENT }
 //
 package parser

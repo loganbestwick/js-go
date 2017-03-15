@@ -4,6 +4,23 @@ import (
 	"strconv"
 )
 
+type Context struct {
+	Variables map[string]Value
+}
+
+func (c Context) Set(s string, v Value) Value {
+	c.Variables[s] = v
+	return v
+}
+
+func (c Context) Get(s string) (Value, error) {
+	v := c.Variables[s]
+	if v == nil {
+		// Return ReferenceError
+	}
+	return v, nil
+}
+
 type Value interface {
 	ToString() string
 

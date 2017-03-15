@@ -2,7 +2,6 @@
 package parser
 
 import "github.com/loganbestwick/js-go/syntax"
-import "fmt"
 %}
 
 %union {
@@ -13,7 +12,9 @@ import "fmt"
 %token NUMBER
 %token STRING
 %token BINARY_OPERATOR
+%token ASSIGNMENT
 
+%right ASSIGNMENT
 %left BINARY_OPERATOR
 
 %%
@@ -33,5 +34,9 @@ expr: NUMBER
 | expr BINARY_OPERATOR expr
 {
   $$ = createBinaryOpNode($2, $1, $3)
+}
+| expr ASSIGNMENT expr
+{
+  $$ = createAssignmentNode($1, $3)
 }
 %%

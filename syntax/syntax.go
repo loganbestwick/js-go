@@ -16,6 +16,22 @@ type Node interface {
 	Eval() (types.Value, error)
 }
 
+type AssignmentNode struct {
+	Left string
+	Right Node
+}
+
+var globalContext types.Context
+
+func (a AssignmentNode) Eval() (types.Value, error) {
+	rv, err := a.Right.Eval()
+	if err != nil {
+		return nil, err
+	}
+	globalContext.Set(a.Left, rv)
+	return rv, nil
+}
+
 type BinaryOpNode struct {
 	Left     Node
 	Right    Node
