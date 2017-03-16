@@ -47,5 +47,7 @@ func TestOperators(t *testing.T) {
 
 	Convey("Assignment", t, func() {
 		assertEval("x = 1", intVal(1))
+		assertEval("x = y = 1", intVal(1))
+		assertEval("x = y = z = 1", intVal(1))
 	})
 }

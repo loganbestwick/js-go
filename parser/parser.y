@@ -11,6 +11,7 @@ import "github.com/loganbestwick/js-go/syntax"
 
 %token NUMBER
 %token STRING
+%token IDENTIFIER
 %token BINARY_OPERATOR
 %token ASSIGNMENT
 
@@ -31,12 +32,16 @@ expr: NUMBER
 {
   $$ = createStringNode($1)
 }
+| IDENTIFIER
+{
+  $$ = createIdentifierNode($1)
+}
 | expr BINARY_OPERATOR expr
 {
   $$ = createBinaryOpNode($2, $1, $3)
 }
 | expr ASSIGNMENT expr
 {
-  $$ = createAssignmentNode($1, $3)
+  $$ = createBinaryOpNode($2, $1, $3)
 }
 %%
