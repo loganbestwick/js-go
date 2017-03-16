@@ -23,7 +23,8 @@ func eval(code string) (types.Value, error) {
 		fmt.Println("-- AST --")
 		spew.Dump(node)
 	}
-	return node.Eval()
+	ctx := &types.Context{}
+	return node.Eval(ctx)
 }
 
 func intVal(i int64) types.NumberValue {
@@ -40,6 +41,9 @@ func strVal(s string) types.StringValue {
 
 func assertEval(code string, value types.Value) {
 	Convey(code+" = "+value.ToString(), func() {
+		if !strings.HasSuffix(code, ";") {
+			code = code + ";"
+		}
 		result, err := eval(code)
 		if DEBUG {
 			fmt.Println("-- VAL --")
@@ -50,5 +54,24 @@ func assertEval(code string, value types.Value) {
 		}
 		So(err, ShouldBeNil)
 		So(result, ShouldResemble, value)
+	})
+}
+
+func assertError(code string, e string) {
+	Convey(code+" errors '"+e+"'", func() {
+		if !strings.HasSuffix(code, ";") {
+			code = code + ";"
+		}
+		result, err := eval(code)
+		if DEBUG {
+			fmt.Println("-- VAL --")
+			spew.Dump(result)
+			fmt.Println("-- ERR --")
+			spew.Dump(err)
+			fmt.Println("-- END --")
+		}
+		So(err, ShouldNotBeNil)
+		So(result, ShouldBeNil)
+		So(err.Error(), ShouldContainSubstring, e)
 	})
 }

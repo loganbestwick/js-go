@@ -6,6 +6,22 @@ import (
 	"github.com/loganbestwick/js-go/syntax"
 )
 
+func createStatementsNode(a yySymType) yySymType {
+	node := syntax.StatementsNode{
+		Statements: []syntax.Node{a.node},
+	}
+	return yySymType{node: node}
+}
+
+func appendStatementsNode(a yySymType, b yySymType) yySymType {
+	sn := a.node.(syntax.StatementsNode)
+	node := syntax.StatementsNode{
+		Statements: sn.Statements,
+	}
+	node.Statements = append(node.Statements, b.node)
+	return yySymType{node: node}
+}
+
 func createNumberNode(o yySymType) yySymType {
 	node := syntax.NumberNode{
 		Value: o.s,
@@ -15,6 +31,13 @@ func createNumberNode(o yySymType) yySymType {
 
 func createStringNode(o yySymType) yySymType {
 	node := syntax.StringNode{
+		Value: o.s,
+	}
+	return yySymType{node: node}
+}
+
+func createVariableNode(o yySymType) yySymType {
+	node := syntax.VariableNode{
 		Value: o.s,
 	}
 	return yySymType{node: node}

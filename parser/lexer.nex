@@ -1,6 +1,9 @@
-/'[^']'/          { lval.s = yylex.Text(); return STRING }
-/[0-9]+/          { lval.s = yylex.Text(); return NUMBER }
-/NaN/             { lval.s = yylex.Text(); return NUMBER }
-/[\+\-]/          { lval.s = yylex.Text(); return BINARY_OPERATOR }
+/;/                      { return END }
+/'[^']'/                 { lval.s = yylex.Text(); return STRING }
+/[0-9]+/                 { lval.s = yylex.Text(); return NUMBER }
+/NaN/                    { lval.s = yylex.Text(); return NUMBER }
+/[a-zA-Z_][a-zA_Z0-9_]*/ { lval.s = yylex.Text(); return IDENTIFIER }
+/[\=]/                   { lval.s = yylex.Text(); return ASSIGN }
+/[\+\-]/                 { lval.s = yylex.Text(); return BINARY_OPERATOR }
 //
 package parser

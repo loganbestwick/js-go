@@ -1,31 +1,43 @@
 package types
 
 import (
+	"errors"
 	"strconv"
+)
+
+var (
+	// Errors
+	ErrInvalidAssignment = errors.New("Invalid left-hand side in assignment")
+
+	// Constants
+	NaN = NumberValue{NaN: true}
 )
 
 type Value interface {
 	ToString() string
 
-	ToStringValue() StringValue
-	ToNumberValue() NumberValue
+	ToActualValue(*Context) (Value, error)
+	ToStringValue(*Context) (StringValue, error)
+	ToNumberValue(*Context) (NumberValue, error)
 
 	// Rules for addition:
 	// If either operand is a string, do string concatenation
 	// If both operands are numbers, do addition
-	Add(Value) (Value, error)
+	Add(*Context, Value) (Value, error)
 
 	// Rules for subtraction:
 	// Convert both operands to numbers, do subtraction
-	Subtract(Value) (Value, error)
+	Subtract(*Context, Value) (Value, error)
+
+	// Rules for assign:
+	// Left side must be a variable, returns assigned value
+	Assign(*Context, Value) (Value, error)
 }
 
 // Interface assertions
 var _ Value = StringValue{}
 var _ Value = NumberValue{}
-
-// Constants definition
-var NaN NumberValue = NumberValue{NaN: true}
+var _ Value = VariableValue{}
 
 type StringValue struct {
 	Value string
@@ -35,25 +47,40 @@ func (t StringValue) ToString() string {
 	return "'" + t.Value + "'"
 }
 
-func (t StringValue) ToStringValue() StringValue {
-	return t
+func (t StringValue) ToActualValue(c *Context) (Value, error) {
+	return t, nil
 }
 
-func (t StringValue) ToNumberValue() NumberValue {
+func (t StringValue) ToStringValue(c *Context) (StringValue, error) {
+	return t, nil
+}
+
+func (t StringValue) ToNumberValue(c *Context) (NumberValue, error) {
 	i, err := strconv.ParseInt(t.Value, 10, 64)
 	if err != nil {
-		return NaN
+		return NaN, nil
 	}
-	return NumberValue{Value: i}
+	return NumberValue{Value: i}, nil
 }
 
-func (t StringValue) Add(v Value) (Value, error) {
-	sv := v.ToStringValue()
+func (t StringValue) Add(c *Context, v Value) (Value, error) {
+	sv, err := v.ToStringValue(c)
+	if err != nil {
+		return nil, err
+	}
 	return StringValue{Value: t.Value + sv.Value}, nil
 }
 
-func (t StringValue) Subtract(v Value) (Value, error) {
-	return t.ToNumberValue().Subtract(v)
+func (t StringValue) Subtract(c *Context, v Value) (Value, error) {
+	nv, err := t.ToNumberValue(c)
+	if err != nil {
+		return nil, err
+	}
+	return nv.Subtract(c, v)
+}
+
+func (t StringValue) Assign(c *Context, v Value) (Value, error) {
+	return nil, ErrInvalidAssignment
 }
 
 type NumberValue struct {
@@ -68,32 +95,108 @@ func (t NumberValue) ToString() string {
 	return strconv.FormatInt(t.Value, 10)
 }
 
-func (t NumberValue) ToStringValue() StringValue {
+func (t NumberValue) ToActualValue(c *Context) (Value, error) {
+	return t, nil
+}
+
+func (t NumberValue) ToStringValue(c *Context) (StringValue, error) {
 	if t.NaN {
-		return StringValue{Value: "NaN"}
+		return StringValue{Value: "NaN"}, nil
 	}
 	s := strconv.FormatInt(t.Value, 10)
-	return StringValue{Value: s}
+	return StringValue{Value: s}, nil
 }
 
-func (t NumberValue) ToNumberValue() NumberValue {
-	return t
+func (t NumberValue) ToNumberValue(c *Context) (NumberValue, error) {
+	return t, nil
 }
 
-func (t NumberValue) Add(v Value) (Value, error) {
-	if iv, ok := v.(NumberValue); ok {
-		if t.NaN || iv.NaN {
+func (t NumberValue) Add(c *Context, v Value) (Value, error) {
+	av, err := v.ToActualValue(c)
+	if err != nil {
+		return nil, err
+	}
+	if nv, ok := av.(NumberValue); ok {
+		if t.NaN || nv.NaN {
 			return NaN, nil
 		}
-		return NumberValue{Value: t.Value + iv.Value}, nil
+		return NumberValue{Value: t.Value + nv.Value}, nil
 	}
-	return t.ToStringValue().Add(v)
+	sv, err := t.ToStringValue(c)
+	if err != nil {
+		return nil, err
+	}
+	return sv.Add(c, v)
 }
 
-func (t NumberValue) Subtract(v Value) (Value, error) {
-	iv := v.ToNumberValue()
-	if t.NaN || iv.NaN {
+func (t NumberValue) Subtract(c *Context, v Value) (Value, error) {
+	nv, err := v.ToNumberValue(c)
+	if err != nil {
+		return nil, err
+	}
+	if t.NaN || nv.NaN {
 		return NaN, nil
 	}
-	return NumberValue{Value: t.Value - iv.Value}, nil
+	return NumberValue{Value: t.Value - nv.Value}, nil
+}
+
+func (t NumberValue) Assign(c *Context, v Value) (Value, error) {
+	return nil, ErrInvalidAssignment
+}
+
+type VariableValue struct {
+	Variable string
+}
+
+func (t VariableValue) ToString() string {
+	return t.Variable
+}
+
+func (t VariableValue) ToActualValue(c *Context) (Value, error) {
+	val, err := c.Get(t.Variable)
+	if err != nil {
+		return nil, err
+	}
+	return val, nil
+}
+
+func (t VariableValue) ToStringValue(c *Context) (StringValue, error) {
+	val, err := c.Get(t.Variable)
+	if err != nil {
+		return StringValue{}, err
+	}
+	return val.ToStringValue(c)
+}
+
+func (t VariableValue) ToNumberValue(c *Context) (NumberValue, error) {
+	val, err := c.Get(t.Variable)
+	if err != nil {
+		return NumberValue{}, err
+	}
+	return val.ToNumberValue(c)
+}
+
+func (t VariableValue) Add(c *Context, v Value) (Value, error) {
+	val, err := c.Get(t.Variable)
+	if err != nil {
+		return nil, err
+	}
+	return val.Add(c, v)
+}
+
+func (t VariableValue) Subtract(c *Context, v Value) (Value, error) {
+	val, err := c.Get(t.Variable)
+	if err != nil {
+		return nil, err
+	}
+	return val.Subtract(c, v)
+}
+
+func (t VariableValue) Assign(c *Context, v Value) (Value, error) {
+	val, err := v.ToActualValue(c)
+	if err != nil {
+		return nil, err
+	}
+	c.Set(t.Variable, val)
+	return val, nil
 }

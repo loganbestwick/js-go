@@ -10,10 +10,27 @@ import (
 const (
 	ADD_OP      = "+"
 	SUBTRACT_OP = "-"
+	ASSIGN_OP   = "="
 )
 
 type Node interface {
-	Eval() (types.Value, error)
+	Eval(*types.Context) (types.Value, error)
+}
+
+type StatementsNode struct {
+	Statements []Node
+}
+
+func (n StatementsNode) Eval(c *types.Context) (types.Value, error) {
+	var ret types.Value
+	var err error
+	for _, statement := range n.Statements {
+		ret, err = statement.Eval(c)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return ret.ToActualValue(c)
 }
 
 type BinaryOpNode struct {
@@ -22,20 +39,22 @@ type BinaryOpNode struct {
 	Operator string
 }
 
-func (n BinaryOpNode) Eval() (types.Value, error) {
-	lv, err := n.Left.Eval()
+func (n BinaryOpNode) Eval(c *types.Context) (types.Value, error) {
+	lv, err := n.Left.Eval(c)
 	if err != nil {
 		return nil, err
 	}
-	rv, err := n.Right.Eval()
+	rv, err := n.Right.Eval(c)
 	if err != nil {
 		return nil, err
 	}
 	switch n.Operator {
 	case ADD_OP:
-		return lv.Add(rv)
+		return lv.Add(c, rv)
 	case SUBTRACT_OP:
-		return lv.Subtract(rv)
+		return lv.Subtract(c, rv)
+	case ASSIGN_OP:
+		return lv.Assign(c, rv)
 	default:
 		return nil, fmt.Errorf("operator %s not recognized", n.Operator)
 	}
@@ -45,7 +64,7 @@ type NumberNode struct {
 	Value string
 }
 
-func (t NumberNode) Eval() (types.Value, error) {
+func (t NumberNode) Eval(c *types.Context) (types.Value, error) {
 	if t.Value == "NaN" {
 		return types.NaN, nil
 	}
@@ -60,6 +79,14 @@ type StringNode struct {
 	Value string
 }
 
-func (t StringNode) Eval() (types.Value, error) {
+func (t StringNode) Eval(c *types.Context) (types.Value, error) {
 	return types.StringValue{Value: t.Value[1 : len(t.Value)-1]}, nil
+}
+
+type VariableNode struct {
+	Value string
+}
+
+func (t VariableNode) Eval(c *types.Context) (types.Value, error) {
+	return types.VariableValue{Variable: t.Value}, nil
 }
