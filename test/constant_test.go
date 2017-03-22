@@ -18,4 +18,8 @@ func TestConstants(t *testing.T) {
 	Convey("Strings", t, func() {
 		assertEval("'1'", strVal("1"))
 	})
+
+	Convey("Identifier", t, func() {
+		assertEval("x", identVal("x"))
+	})
 }

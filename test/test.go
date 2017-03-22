@@ -15,6 +15,7 @@ const (
 )
 
 func eval(code string) (types.Value, error) {
+	ctx := types.Context{}
 	node := parser.Parse(strings.NewReader(code))
 	if DEBUG {
 		fmt.Println("")
@@ -23,7 +24,7 @@ func eval(code string) (types.Value, error) {
 		fmt.Println("-- AST --")
 		spew.Dump(node)
 	}
-	return node.Eval()
+	return node.Eval(ctx)
 }
 
 func intVal(i int64) types.NumberValue {
@@ -38,8 +39,14 @@ func strVal(s string) types.StringValue {
 	return types.StringValue{Value: s}
 }
 
+func identVal(s string) types.IdentifierValue {
+	return types.IdentifierValue{Value: s}
+}
+
 func assertEval(code string, value types.Value) {
-	Convey(code+" = "+value.ToString(), func() {
+	ctx := types.Context{}
+	testName, _ := value.ToString(ctx)
+	Convey(code+" = "+testName, func() {
 		result, err := eval(code)
 		if DEBUG {
 			fmt.Println("-- VAL --")

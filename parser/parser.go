@@ -29,10 +29,9 @@ func createBinaryOpNode(operator yySymType, left yySymType, right yySymType) yyS
 	return yySymType{node: node}
 }
 
-func createAssignmentNode(left yySymType, right yySymType) yySymType {
-	node := syntax.AssignmentNode{
-		Left: left.s,
-		Right: right.node,
+func createIdentifierNode(o yySymType) yySymType {
+	node := syntax.IdentifierNode{
+		Value: o.s,
 	}
 	return yySymType{node: node}
 }
