@@ -1,15 +1,15 @@
 package types
 
 import (
-	"strconv"
 	"errors"
+	"strconv"
 )
 
 type Context struct {
 	Variables map[string]Value
 }
 
-func (c Context) Set(s string, v Value) Value {
+func (c *Context) Set(s string, v Value) Value {
 	if c.Variables == nil {
 		c.Variables = make(map[string]Value)
 	}
@@ -18,30 +18,30 @@ func (c Context) Set(s string, v Value) Value {
 }
 
 func (c Context) Get(s string) (Value, error) {
-	v := c.Variables[s]
-	if v == nil {
-		return nil, errors.New("ReferenceError: "+s+" is not defined")
+	v, ok := c.Variables[s]
+	if !ok {
+		return nil, errors.New("ReferenceError: " + s + " is not defined")
 	}
 	return v, nil
 }
 
 type Value interface {
-	ToString(Context) (string, error)
+	ToString(*Context) (string, error)
 
-	ToStringValue(Context) (StringValue, error)
-	ToNumberValue(Context) (NumberValue, error)
+	ToStringValue(*Context) (StringValue, error)
+	ToNumberValue(*Context) (NumberValue, error)
 
 	// Rules for addition:
 	// If either operand is a string, do string concatenation
 	// If both operands are numbers, do addition
-	Add(Context, Value) (Value, error)
+	Add(*Context, Value) (Value, error)
 
 	// Rules for subtraction:
 	// Convert both operands to numbers, do subtraction
-	Subtract(Context, Value) (Value, error)
+	Subtract(*Context, Value) (Value, error)
 
 	// Rules for assignment:
-	Assign(Context, Value) (Value, error)
+	Assign(*Context, Value) (Value, error)
 }
 
 // Interface assertions
@@ -55,47 +55,47 @@ type IdentifierValue struct {
 	Value string
 }
 
-func (i IdentifierValue) ToString(ctx Context) (string, error) {
-	v, err := ctx.Get(i.Value)
+func (i IdentifierValue) ToString(ctx *Context) (string, error) {
+	av, err := ctx.Get(i.Value)
 	if err != nil {
 		return "", err
 	}
-	return v.ToString(ctx)
+	return av.ToString(ctx)
 }
 
-func (i IdentifierValue) ToStringValue(ctx Context) (StringValue, error) {
-	v, err := ctx.Get(i.Value)
+func (i IdentifierValue) ToStringValue(ctx *Context) (StringValue, error) {
+	av, err := ctx.Get(i.Value)
 	if err != nil {
 		return StringValue{}, err
 	}
-	return v.ToStringValue(ctx)
+	return av.ToStringValue(ctx)
 }
 
-func (i IdentifierValue) ToNumberValue(ctx Context) (NumberValue, error) {
-	v, err := ctx.Get(i.Value)
+func (i IdentifierValue) ToNumberValue(ctx *Context) (NumberValue, error) {
+	av, err := ctx.Get(i.Value)
 	if err != nil {
 		return NumberValue{}, err
 	}
-	return v.ToNumberValue(ctx)
+	return av.ToNumberValue(ctx)
 }
 
-func (i IdentifierValue) Add(ctx Context, v Value) (Value, error) {
-	v, err := ctx.Get(i.Value)
+func (i IdentifierValue) Add(ctx *Context, v Value) (Value, error) {
+	av, err := ctx.Get(i.Value)
 	if err != nil {
 		return nil, err
 	}
-	return v.Add(ctx, v)
+	return av.Add(ctx, v)
 }
 
-func (i IdentifierValue) Subtract(ctx Context, v Value) (Value, error) {
-	v, err := ctx.Get(i.Value)
+func (i IdentifierValue) Subtract(ctx *Context, v Value) (Value, error) {
+	av, err := ctx.Get(i.Value)
 	if err != nil {
 		return nil, err
 	}
-	return v.Subtract(ctx, v)
+	return av.Subtract(ctx, v)
 }
 
-func (i IdentifierValue) Assign(ctx Context, value Value) (Value, error) {
+func (i IdentifierValue) Assign(ctx *Context, value Value) (Value, error) {
 	ctx.Set(i.Value, value)
 	return value, nil
 }
@@ -104,15 +104,15 @@ type StringValue struct {
 	Value string
 }
 
-func (t StringValue) ToString(ctx Context) (string, error) {
+func (t StringValue) ToString(ctx *Context) (string, error) {
 	return "'" + t.Value + "'", nil
 }
 
-func (t StringValue) ToStringValue(ctx Context) (StringValue, error) {
+func (t StringValue) ToStringValue(ctx *Context) (StringValue, error) {
 	return t, nil
 }
 
-func (t StringValue) ToNumberValue(ctx Context) (NumberValue, error) {
+func (t StringValue) ToNumberValue(ctx *Context) (NumberValue, error) {
 	i, err := strconv.ParseInt(t.Value, 10, 64)
 	if err != nil {
 		return NaN, nil
@@ -120,7 +120,7 @@ func (t StringValue) ToNumberValue(ctx Context) (NumberValue, error) {
 	return NumberValue{Value: i}, nil
 }
 
-func (t StringValue) Add(ctx Context, v Value) (Value, error) {
+func (t StringValue) Add(ctx *Context, v Value) (Value, error) {
 	sv, err := v.ToStringValue(ctx)
 	if err != nil {
 		return nil, err
@@ -128,7 +128,7 @@ func (t StringValue) Add(ctx Context, v Value) (Value, error) {
 	return StringValue{Value: t.Value + sv.Value}, nil
 }
 
-func (t StringValue) Subtract(ctx Context, v Value) (Value, error) {
+func (t StringValue) Subtract(ctx *Context, v Value) (Value, error) {
 	nv, err := t.ToNumberValue(ctx)
 	if err != nil {
 		return nil, err
@@ -136,7 +136,7 @@ func (t StringValue) Subtract(ctx Context, v Value) (Value, error) {
 	return nv.Subtract(ctx, v)
 }
 
-func (t StringValue) Assign(ctx Context, value Value) (Value, error) {
+func (t StringValue) Assign(ctx *Context, value Value) (Value, error) {
 	return nil, errors.New("ReferenceError: Invalid left-hand side in assignment")
 }
 
@@ -145,14 +145,14 @@ type NumberValue struct {
 	Value int64
 }
 
-func (t NumberValue) ToString(ctx Context) (string, error) {
+func (t NumberValue) ToString(ctx *Context) (string, error) {
 	if t.NaN {
 		return "NaN", nil
 	}
 	return strconv.FormatInt(t.Value, 10), nil
 }
 
-func (t NumberValue) ToStringValue(ctx Context) (StringValue, error) {
+func (t NumberValue) ToStringValue(ctx *Context) (StringValue, error) {
 	if t.NaN {
 		return StringValue{Value: "NaN"}, nil
 	}
@@ -160,11 +160,11 @@ func (t NumberValue) ToStringValue(ctx Context) (StringValue, error) {
 	return StringValue{Value: s}, nil
 }
 
-func (t NumberValue) ToNumberValue(ctx Context) (NumberValue, error) {
+func (t NumberValue) ToNumberValue(ctx *Context) (NumberValue, error) {
 	return t, nil
 }
 
-func (t NumberValue) Add(ctx Context, v Value) (Value, error) {
+func (t NumberValue) Add(ctx *Context, v Value) (Value, error) {
 	if iv, ok := v.(NumberValue); ok {
 		if t.NaN || iv.NaN {
 			return NaN, nil
@@ -178,7 +178,7 @@ func (t NumberValue) Add(ctx Context, v Value) (Value, error) {
 	return sv.Add(ctx, v)
 }
 
-func (t NumberValue) Subtract(ctx Context, v Value) (Value, error) {
+func (t NumberValue) Subtract(ctx *Context, v Value) (Value, error) {
 	iv, err := v.ToNumberValue(ctx)
 	if err != nil {
 		return nil, err
@@ -189,6 +189,6 @@ func (t NumberValue) Subtract(ctx Context, v Value) (Value, error) {
 	return NumberValue{Value: t.Value - iv.Value}, nil
 }
 
-func (t NumberValue) Assign(ctx Context, value Value) (Value, error) {
+func (t NumberValue) Assign(ctx *Context, value Value) (Value, error) {
 	return nil, errors.New("ReferenceError: Invalid left-hand side in assignment")
 }

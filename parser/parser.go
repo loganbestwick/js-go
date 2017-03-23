@@ -3,6 +3,8 @@ package parser
 import (
 	"io"
 
+	"fmt"
+
 	"github.com/loganbestwick/js-go/syntax"
 )
 
@@ -20,6 +22,13 @@ func createStringNode(o yySymType) yySymType {
 	return yySymType{node: node}
 }
 
+func createIdentifierNode(o yySymType) yySymType {
+	node := syntax.IdentifierNode{
+		Value: o.s,
+	}
+	return yySymType{node: node}
+}
+
 func createBinaryOpNode(operator yySymType, left yySymType, right yySymType) yySymType {
 	node := syntax.BinaryOpNode{
 		Left:     left.node,
@@ -29,10 +38,18 @@ func createBinaryOpNode(operator yySymType, left yySymType, right yySymType) yyS
 	return yySymType{node: node}
 }
 
-func createIdentifierNode(o yySymType) yySymType {
-	node := syntax.IdentifierNode{
-		Value: o.s,
+func appendStatement(statements *yySymType, statement yySymType) yySymType {
+	var node *syntax.StatementsNode
+	if statements != nil {
+		if statementsNode, ok := statements.node.(*syntax.StatementsNode); ok {
+			node = statementsNode
+		} else {
+			panic(fmt.Sprintf("not a statements node: %+v", statements.node))
+		}
+	} else {
+		node = &syntax.StatementsNode{}
 	}
+	node.Append(statement.node)
 	return yySymType{node: node}
 }
 

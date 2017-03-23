@@ -8,13 +8,33 @@ import (
 )
 
 const (
-	ADD_OP      = "+"
-	SUBTRACT_OP = "-"
+	ADD_OP        = "+"
+	SUBTRACT_OP   = "-"
 	ASSIGNMENT_OP = "="
 )
 
 type Node interface {
-	Eval(types.Context) (types.Value, error)
+	Eval(*types.Context) (types.Value, error)
+}
+
+type StatementsNode struct {
+	Statements []Node
+}
+
+func (n *StatementsNode) Append(statement Node) {
+	n.Statements = append(n.Statements, statement)
+}
+
+func (n StatementsNode) Eval(ctx *types.Context) (types.Value, error) {
+	var ret types.Value
+	for _, statement := range n.Statements {
+		var err error
+		ret, err = statement.Eval(ctx)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return ret, nil
 }
 
 type BinaryOpNode struct {
@@ -23,7 +43,7 @@ type BinaryOpNode struct {
 	Operator string
 }
 
-func (n BinaryOpNode) Eval(ctx types.Context) (types.Value, error) {
+func (n BinaryOpNode) Eval(ctx *types.Context) (types.Value, error) {
 	lv, err := n.Left.Eval(ctx)
 	if err != nil {
 		return nil, err
@@ -48,7 +68,7 @@ type IdentifierNode struct {
 	Value string
 }
 
-func (i IdentifierNode) Eval(ctx types.Context) (types.Value, error) {
+func (i IdentifierNode) Eval(ctx *types.Context) (types.Value, error) {
 	return types.IdentifierValue{Value: i.Value}, nil
 }
 
@@ -56,7 +76,7 @@ type NumberNode struct {
 	Value string
 }
 
-func (t NumberNode) Eval(ctx types.Context) (types.Value, error) {
+func (t NumberNode) Eval(ctx *types.Context) (types.Value, error) {
 	if t.Value == "NaN" {
 		return types.NaN, nil
 	}
@@ -71,6 +91,6 @@ type StringNode struct {
 	Value string
 }
 
-func (t StringNode) Eval(ctx types.Context) (types.Value, error) {
+func (t StringNode) Eval(ctx *types.Context) (types.Value, error) {
 	return types.StringValue{Value: t.Value[1 : len(t.Value)-1]}, nil
 }

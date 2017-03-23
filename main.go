@@ -28,7 +28,7 @@ func main() {
 	spew.Dump(node)
 
 	fmt.Println("--- OUTPUT ---")
-	ctx := types.Context{}
+	ctx := &types.Context{}
 	result, err := node.Eval(ctx)
 	if err != nil {
 		panic(err)

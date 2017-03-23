@@ -11,11 +11,13 @@ import (
 )
 
 const (
-	DEBUG = false
+	DEBUG = true
 )
 
-func eval(code string) (types.Value, error) {
-	ctx := types.Context{}
+func eval(ctx *types.Context, code string) (types.Value, error) {
+	if !strings.HasSuffix(code, ";") {
+		code += ";"
+	}
 	node := parser.Parse(strings.NewReader(code))
 	if DEBUG {
 		fmt.Println("")
@@ -44,10 +46,10 @@ func identVal(s string) types.IdentifierValue {
 }
 
 func assertEval(code string, value types.Value) {
-	ctx := types.Context{}
+	ctx := &types.Context{}
 	testName, _ := value.ToString(ctx)
 	Convey(code+" = "+testName, func() {
-		result, err := eval(code)
+		result, err := eval(ctx, code)
 		if DEBUG {
 			fmt.Println("-- VAL --")
 			spew.Dump(result)
