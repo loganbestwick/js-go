@@ -34,7 +34,7 @@ func (n StatementsNode) Eval(ctx *types.Context) (types.Value, error) {
 			return nil, err
 		}
 	}
-	return ret, nil
+	return ret.ToActualValue(ctx)
 }
 
 type BinaryOpNode struct {

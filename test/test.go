@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	DEBUG = true
+	DEBUG = false
 )
 
 func eval(ctx *types.Context, code string) (types.Value, error) {

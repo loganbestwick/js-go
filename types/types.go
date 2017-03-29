@@ -13,7 +13,11 @@ func (c *Context) Set(s string, v Value) Value {
 	if c.Variables == nil {
 		c.Variables = make(map[string]Value)
 	}
-	c.Variables[s] = v
+	av, err := v.ToActualValue(c)
+	if err != nil {
+		return nil
+	}
+	c.Variables[s] = av
 	return v
 }
 
@@ -28,6 +32,7 @@ func (c Context) Get(s string) (Value, error) {
 type Value interface {
 	ToString(*Context) (string, error)
 
+	ToActualValue(*Context) (Value, error)
 	ToStringValue(*Context) (StringValue, error)
 	ToNumberValue(*Context) (NumberValue, error)
 
@@ -63,6 +68,14 @@ func (i IdentifierValue) ToString(ctx *Context) (string, error) {
 	return av.ToString(ctx)
 }
 
+func (i IdentifierValue) ToActualValue(ctx *Context) (Value, error) {
+	av, err := ctx.Get(i.Value)
+	if err != nil {
+		return nil, err
+	}
+	return av, err
+}
+
 func (i IdentifierValue) ToStringValue(ctx *Context) (StringValue, error) {
 	av, err := ctx.Get(i.Value)
 	if err != nil {
@@ -96,8 +109,12 @@ func (i IdentifierValue) Subtract(ctx *Context, v Value) (Value, error) {
 }
 
 func (i IdentifierValue) Assign(ctx *Context, value Value) (Value, error) {
-	ctx.Set(i.Value, value)
-	return value, nil
+	av, err := value.ToActualValue(ctx)
+	if err != nil {
+		return nil, err
+	}
+	ctx.Set(i.Value, av)
+	return av, nil
 }
 
 type StringValue struct {
@@ -106,6 +123,10 @@ type StringValue struct {
 
 func (t StringValue) ToString(ctx *Context) (string, error) {
 	return "'" + t.Value + "'", nil
+}
+
+func (t StringValue) ToActualValue(ctx *Context) (Value, error) {
+	return t, nil
 }
 
 func (t StringValue) ToStringValue(ctx *Context) (StringValue, error) {
@@ -152,6 +173,10 @@ func (t NumberValue) ToString(ctx *Context) (string, error) {
 	return strconv.FormatInt(t.Value, 10), nil
 }
 
+func (t NumberValue) ToActualValue(ctx *Context) (Value, error) {
+	return t, nil
+}
+
 func (t NumberValue) ToStringValue(ctx *Context) (StringValue, error) {
 	if t.NaN {
 		return StringValue{Value: "NaN"}, nil
@@ -165,7 +190,11 @@ func (t NumberValue) ToNumberValue(ctx *Context) (NumberValue, error) {
 }
 
 func (t NumberValue) Add(ctx *Context, v Value) (Value, error) {
-	if iv, ok := v.(NumberValue); ok {
+	av, err := v.ToActualValue(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if iv, ok := av.(NumberValue); ok {
 		if t.NaN || iv.NaN {
 			return NaN, nil
 		}
