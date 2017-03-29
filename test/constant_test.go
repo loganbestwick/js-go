@@ -20,6 +20,7 @@ func TestConstants(t *testing.T) {
 	})
 
 	Convey("Identifier", t, func() {
-		assertEval("x", identVal("x"))
+		assertEval("x = 1; x", intVal(1))
+		assertError("x", "x is not defined")
 	})
 }

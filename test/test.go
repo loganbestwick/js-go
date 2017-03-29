@@ -41,14 +41,31 @@ func strVal(s string) types.StringValue {
 	return types.StringValue{Value: s}
 }
 
-func identVal(s string) types.IdentifierValue {
-	return types.IdentifierValue{Value: s}
+func testEval(ctx *types.Context, code string) (types.Value, error) {
+	result, err := eval(ctx, code)
+	if DEBUG {
+		fmt.Println("-- VAL --")
+		spew.Dump(result)
+		fmt.Println("-- ERR --")
+		spew.Dump(err)
+		fmt.Println("-- END --")
+	}
+	return result, err
 }
 
 func assertEval(code string, value types.Value) {
 	ctx := &types.Context{}
-	testName, _ := value.ToString(ctx)
-	Convey(code+" = "+testName, func() {
+	val, _ := value.ToString(ctx)
+	Convey(code+" = "+val, func() {
+		result, err := testEval(ctx, code)
+		So(err, ShouldBeNil)
+		So(result, ShouldResemble, value)
+	})
+}
+
+func assertError(code string, errString string) {
+	ctx := &types.Context{}
+	Convey(code+" = "+errString, func() {
 		result, err := eval(ctx, code)
 		if DEBUG {
 			fmt.Println("-- VAL --")
@@ -57,7 +74,7 @@ func assertEval(code string, value types.Value) {
 			spew.Dump(err)
 			fmt.Println("-- END --")
 		}
-		So(err, ShouldBeNil)
-		So(result, ShouldResemble, value)
+		So(err.Error(), ShouldContainSubstring, errString)
+		So(result, ShouldBeNil)
 	})
 }
