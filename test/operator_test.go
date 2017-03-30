@@ -44,4 +44,10 @@ func TestOperators(t *testing.T) {
 		assertEval("NaN - '1'", nanVal())
 		assertEval("'1' - NaN", nanVal())
 	})
+
+	Convey("Assignment", t, func() {
+		assertEval("x = 1", intVal(1))
+		assertEval("x = y = 1", intVal(1))
+		assertEval("x = y = z = 1", intVal(1))
+	})
 }

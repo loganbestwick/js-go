@@ -8,6 +8,7 @@ import (
 
 	"github.com/davecgh/go-spew/spew"
 	"github.com/loganbestwick/js-go/parser"
+	"github.com/loganbestwick/js-go/types"
 )
 
 func main() {
@@ -27,7 +28,8 @@ func main() {
 	spew.Dump(node)
 
 	fmt.Println("--- OUTPUT ---")
-	result, err := node.Eval()
+	ctx := &types.Context{}
+	result, err := node.Eval(ctx)
 	if err != nil {
 		panic(err)
 	}

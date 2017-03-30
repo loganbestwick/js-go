@@ -14,7 +14,10 @@ const (
 	DEBUG = false
 )
 
-func eval(code string) (types.Value, error) {
+func eval(ctx *types.Context, code string) (types.Value, error) {
+	if !strings.HasSuffix(code, ";") {
+		code += ";"
+	}
 	node := parser.Parse(strings.NewReader(code))
 	if DEBUG {
 		fmt.Println("")
@@ -23,7 +26,7 @@ func eval(code string) (types.Value, error) {
 		fmt.Println("-- AST --")
 		spew.Dump(node)
 	}
-	return node.Eval()
+	return node.Eval(ctx)
 }
 
 func intVal(i int64) types.NumberValue {
@@ -38,9 +41,32 @@ func strVal(s string) types.StringValue {
 	return types.StringValue{Value: s}
 }
 
+func testEval(ctx *types.Context, code string) (types.Value, error) {
+	result, err := eval(ctx, code)
+	if DEBUG {
+		fmt.Println("-- VAL --")
+		spew.Dump(result)
+		fmt.Println("-- ERR --")
+		spew.Dump(err)
+		fmt.Println("-- END --")
+	}
+	return result, err
+}
+
 func assertEval(code string, value types.Value) {
-	Convey(code+" = "+value.ToString(), func() {
-		result, err := eval(code)
+	ctx := &types.Context{}
+	val, _ := value.ToString(ctx)
+	Convey(code+" = "+val, func() {
+		result, err := testEval(ctx, code)
+		So(err, ShouldBeNil)
+		So(result, ShouldResemble, value)
+	})
+}
+
+func assertError(code string, errString string) {
+	ctx := &types.Context{}
+	Convey(code+" = "+errString, func() {
+		result, err := eval(ctx, code)
 		if DEBUG {
 			fmt.Println("-- VAL --")
 			spew.Dump(result)
@@ -48,7 +74,7 @@ func assertEval(code string, value types.Value) {
 			spew.Dump(err)
 			fmt.Println("-- END --")
 		}
-		So(err, ShouldBeNil)
-		So(result, ShouldResemble, value)
+		So(err.Error(), ShouldContainSubstring, errString)
+		So(result, ShouldBeNil)
 	})
 }
