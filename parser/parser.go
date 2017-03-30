@@ -1,9 +1,8 @@
 package parser
 
 import (
-	"io"
-
 	"fmt"
+	"io"
 
 	"github.com/loganbestwick/js-go/syntax"
 )
