@@ -1,9 +1,14 @@
-/'[^']'/                 { lval.s = yylex.Text(); return STRING }
-/[0-9]+/                 { lval.s = yylex.Text(); return NUMBER }
+/;/                      { return END }
+/if/                     { return IF }
+/\(/                     { return LP }
+/\)/                     { return RP }
+/\{/                     { return LB }
+/\}/                     { return RB }
 /NaN/                    { lval.s = yylex.Text(); return NUMBER }
-/[a-zA-Z_][a-zA-Z0-9_]*/ { lval.s = yylex.Text(); return IDENTIFIER }
 /[\+\-]/                 { lval.s = yylex.Text(); return BINARY_OPERATOR }
 /[=]/                    { lval.s = yylex.Text(); return ASSIGNMENT }
-/;/                      { lval.s = yylex.Text(); return END }
+/'[^']'/                 { lval.s = yylex.Text(); return STRING }
+/[0-9]+/                 { lval.s = yylex.Text(); return NUMBER }
+/[a-zA-Z_][a-zA-Z0-9_]*/ { lval.s = yylex.Text(); return IDENTIFIER }
 //
 package parser

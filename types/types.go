@@ -35,6 +35,7 @@ type Value interface {
 	ToActualValue(*Context) (Value, error)
 	ToStringValue(*Context) (StringValue, error)
 	ToNumberValue(*Context) (NumberValue, error)
+	ToBoolValue(*Context) (BooleanValue, error)
 
 	// Rules for addition:
 	// If either operand is a string, do string concatenation
@@ -52,6 +53,7 @@ type Value interface {
 // Interface assertions
 var _ Value = StringValue{}
 var _ Value = NumberValue{}
+var _ Value = BooleanValue{}
 
 // Constants definition
 var NaN NumberValue = NumberValue{NaN: true}
@@ -90,6 +92,14 @@ func (i IdentifierValue) ToNumberValue(ctx *Context) (NumberValue, error) {
 		return NumberValue{}, err
 	}
 	return av.ToNumberValue(ctx)
+}
+
+func (i IdentifierValue) ToBooleanValue(ctx *Context) (BooleanValue, error) {
+	av, err := ctx.Get(i.Value)
+	if err != nil {
+		return BooleanValue{}, err
+	}
+	return av.ToBoolValue(ctx)
 }
 
 func (i IdentifierValue) Add(ctx *Context, v Value) (Value, error) {
@@ -141,6 +151,13 @@ func (t StringValue) ToNumberValue(ctx *Context) (NumberValue, error) {
 	return NumberValue{Value: i}, nil
 }
 
+func (t StringValue) ToBooleanValue(ctx *Context) (BooleanValue, error) {
+	if len(t.Value) > 0 {
+		return BooleanValue{Value: true}, nil
+	}
+	return BooleanValue{Value: false}, nil
+}
+
 func (t StringValue) Add(ctx *Context, v Value) (Value, error) {
 	sv, err := v.ToStringValue(ctx)
 	if err != nil {
@@ -166,6 +183,10 @@ type NumberValue struct {
 	Value int64
 }
 
+type ObjectValue struct {
+	Keys map[string]Value
+}
+
 func (t NumberValue) ToString(ctx *Context) (string, error) {
 	if t.NaN {
 		return "NaN", nil
@@ -187,6 +208,13 @@ func (t NumberValue) ToStringValue(ctx *Context) (StringValue, error) {
 
 func (t NumberValue) ToNumberValue(ctx *Context) (NumberValue, error) {
 	return t, nil
+}
+
+func (t NumberValue) ToBooleanValue(ctx *Context) (BooleanValue, error) {
+	if t.Value != 0 && t.NaN != true {
+		return BooleanValue{Value: true}, nil
+	}
+	return BooleanValue{Value: false}, nil
 }
 
 func (t NumberValue) Add(ctx *Context, v Value) (Value, error) {
@@ -220,4 +248,36 @@ func (t NumberValue) Subtract(ctx *Context, v Value) (Value, error) {
 
 func (t NumberValue) Assign(ctx *Context, value Value) (Value, error) {
 	return nil, errors.New("ReferenceError: Invalid left-hand side in assignment")
+}
+
+type BooleanValue struct {
+	Value bool
+}
+
+func (b BooleanValue) ToString(ctx *Context) (string, error) {
+	return strconv.FormatBool(b.Value), nil
+}
+
+func (b BooleanValue) ToActualValue(ctx *Context) (Value, error) {
+	return b, nil
+}
+
+func (b BooleanValue) ToStringValue(ctx *Context) (StringValue, error) {
+	return strconv.FormatBool(b.Value), nil
+}
+
+func (b BooleanValue) ToBooleanValue(ctx *Context) (BooleanValue, error) {
+	return b, nil
+}
+
+func (b BooleanValue) Add(ctx *Context, v Value) (Value, error) {
+
+}
+
+func (b BooleanValue) Subtract(ctx *Context, v Value) (Value, error) {
+
+}
+
+func (b BooleanValue) Assign(ctx *Context, v Value) (Value, error) {
+
 }

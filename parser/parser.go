@@ -37,6 +37,10 @@ func createBinaryOpNode(operator yySymType, left yySymType, right yySymType) yyS
 	return yySymType{node: node}
 }
 
+func createIfNode(expr yySymType, statements yySymType) yySymType {
+	return yySymType{}
+}
+
 func appendStatement(statements *yySymType, statement yySymType) yySymType {
 	var node *syntax.StatementsNode
 	if statements != nil {
