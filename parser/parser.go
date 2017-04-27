@@ -14,6 +14,13 @@ func createNumberNode(o yySymType) yySymType {
 	return yySymType{node: node}
 }
 
+func createBooleanNode(o yySymType) yySymType {
+	node := syntax.BooleanNode{
+		Value: o.s,
+	}
+	return yySymType{node: node}
+}
+
 func createStringNode(o yySymType) yySymType {
 	node := syntax.StringNode{
 		Value: o.s,

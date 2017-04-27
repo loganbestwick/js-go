@@ -9,6 +9,7 @@ import "github.com/loganbestwick/js-go/syntax"
   node syntax.Node
 }
 
+%token BOOLEAN
 %token NUMBER
 %token STRING
 %token IDENTIFIER
@@ -48,7 +49,10 @@ statement: expr END
   $$ = createIfNode($3, $6)
 }
 
-expr: NUMBER
+expr: BOOLEAN
+{
+  $$ = createBooleanNode($1)
+} | NUMBER
 {
   $$ = createNumberNode($1)
 }

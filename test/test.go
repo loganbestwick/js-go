@@ -15,9 +15,6 @@ const (
 )
 
 func eval(ctx *types.Context, code string) (types.Value, error) {
-	if !strings.HasSuffix(code, ";") {
-		code += ";"
-	}
 	node := parser.Parse(strings.NewReader(code))
 	if DEBUG {
 		fmt.Println("")
@@ -39,6 +36,10 @@ func nanVal() types.NumberValue {
 
 func strVal(s string) types.StringValue {
 	return types.StringValue{Value: s}
+}
+
+func boolVal(b bool) types.BooleanValue {
+	return types.BooleanValue{Value: b}
 }
 
 func testEval(ctx *types.Context, code string) (types.Value, error) {

@@ -72,6 +72,17 @@ func (i IdentifierNode) Eval(ctx *types.Context) (types.Value, error) {
 	return types.IdentifierValue{Value: i.Value}, nil
 }
 
+type BooleanNode struct {
+	Value string
+}
+
+func (t BooleanNode) Eval(ctx *types.Context) (types.Value, error) {
+	if t.Value == "true" {
+		return types.BooleanValue{Value: true}, nil
+	}
+	return types.BooleanValue{Value: false}, nil
+}
+
 type NumberNode struct {
 	Value string
 }
