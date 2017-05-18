@@ -45,7 +45,12 @@ func createBinaryOpNode(operator yySymType, left yySymType, right yySymType) yyS
 }
 
 func createIfNode(expr yySymType, statements yySymType) yySymType {
-	return yySymType{}
+	statementsNode := statements.node.(*syntax.StatementsNode)
+	node := syntax.ConditionalNode{
+		Expression: expr.node,
+		Statements: statementsNode,
+	}
+	return yySymType{node: node}
 }
 
 func appendStatement(statements *yySymType, statement yySymType) yySymType {
