@@ -8,46 +8,80 @@ import (
 
 func TestOperators(t *testing.T) {
 	Convey("Addition", t, func() {
-		assertEval("1 + 1", intVal(2))
-		assertEval("1 + 2", intVal(3))
-		assertEval("1 + 2 + 3", intVal(6))
+		// Int tests
+		assertEval("1 + 1;", intVal(2))
+		assertEval("1 + 2;", intVal(3))
+		assertEval("1 + 2 + 3;", intVal(6))
+		assertEval("1 + '2';", strVal("12"))
+		assertEval("1 + NaN;", nanVal())
+		assertEval("1 + true;", intVal(2))
+		assertEval("1 + false;", intVal(1))
 
-		assertEval("'2' + 1", strVal("21"))
-		assertEval("1 + '2'", strVal("12"))
-		assertEval("1 + '2' + 3", strVal("123"))
+		// NaN tests
+		assertEval("NaN + 1;", nanVal())
+		assertEval("NaN + '2';", strVal("NaN2"))
+		assertEval("NaN + true;", nanVal())
 
-		assertEval("NaN + 1", nanVal())
-		assertEval("1 + NaN", nanVal())
-		assertEval("NaN + '1'", strVal("NaN1"))
-		assertEval("'1' + NaN", strVal("1NaN"))
+		// String tests
+		assertEval("'1' + 1;", strVal("11"))
+		assertEval("'1' + 2 + 3;", strVal("123"))
+		assertEval("'1' + NaN;", strVal("1NaN"))
+		assertEval("'1' + true;", strVal("1true"))
+
+		// Boolean tests
+		assertEval("true + true;", intVal(2))
+		assertEval("true + false;", intVal(1))
+		assertEval("true + NaN;", nanVal())
+		assertEval("true + '1';", strVal("true1"))
 	})
 
 	Convey("Subtraction", t, func() {
-		assertEval("2 - 1", intVal(1))
-		assertEval("5 - 2", intVal(3))
-		assertEval("5 - 2 - 1", intVal(2))
-		assertEval("1 - 2", intVal(-1))
-		assertEval("1 - 2 - 3", intVal(-4))
+		// Int tests
+		assertEval("2 - 1;", intVal(1))
+		assertEval("5 - 2;", intVal(3))
+		assertEval("5 - 2 - 1;", intVal(2))
+		assertEval("1 - 2;", intVal(-1))
+		assertEval("1 - 2 - 3;", intVal(-4))
+		assertEval("3 - '1';", intVal(2))
+		assertEval("3 - 'a';", nanVal())
+		assertEval("2 - NaN;", nanVal())
+		assertEval("3 - true;", intVal(2))
+		assertEval("3 - false;", intVal(3))
 
-		assertEval("'1' - 1", intVal(0))
-		assertEval("1 - '1'", intVal(0))
-		assertEval("'1' - '1'", intVal(0))
-		assertEval("'5' - '2' - '1'", intVal(2))
+		// String tests
+		assertEval("'1' - '1';", intVal(0))
+		assertEval("'5' - '2' - '1';", intVal(2))
+		assertEval("'3' - 1;", intVal(2))
+		assertEval("'3' - 'a';", nanVal())
+		assertEval("'3' - NaN;", nanVal())
+		assertEval("'3' - true;", intVal(2))
+		assertEval("'3' - false;", intVal(3))
+		assertEval("'a' - 1;", nanVal())
+		assertEval("'a' - '1';", nanVal())
+		assertEval("'a' - 'a';", nanVal())
+		assertEval("'a' - NaN;", nanVal())
+		assertEval("'a' - true;", nanVal())
+		assertEval("'a' - false;", nanVal())
 
-		assertEval("'a' - 1", nanVal())
-		assertEval("1 - 'a'", nanVal())
-		assertEval("'a' - '1'", nanVal())
-		assertEval("'1' - 'a'", nanVal())
+		// NaN tests
+		assertEval("NaN - 1;", nanVal())
+		assertEval("NaN - '1';", nanVal())
+		assertEval("NaN - true;", nanVal())
+		assertEval("NaN - false;", nanVal())
 
-		assertEval("NaN - 1", nanVal())
-		assertEval("1 - NaN", nanVal())
-		assertEval("NaN - '1'", nanVal())
-		assertEval("'1' - NaN", nanVal())
+		// Boolean tests
+		assertEval("true - true;", intVal(0))
+		assertEval("true - false;", intVal(1))
+		assertEval("false - 1;", intVal(-1))
+		assertEval("false - '1';", intVal(-1))
+		assertEval("false - 'a';", nanVal())
+		assertEval("false - NaN;", nanVal())
 	})
 
 	Convey("Assignment", t, func() {
-		assertEval("x = 1", intVal(1))
-		assertEval("x = y = 1", intVal(1))
-		assertEval("x = y = z = 1", intVal(1))
+		assertEval("x = 1;", intVal(1))
+		assertEval("x = y = 1;", intVal(1))
+		assertEval("x = y = z = 1;", intVal(1))
+		assertEval("x = true;", boolVal(true))
 	})
 }

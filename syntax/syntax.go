@@ -37,6 +37,26 @@ func (n StatementsNode) Eval(ctx *types.Context) (types.Value, error) {
 	return ret.ToActualValue(ctx)
 }
 
+type ConditionalNode struct {
+	Expression Node
+	Statements *StatementsNode
+}
+
+func (n ConditionalNode) Eval(ctx *types.Context) (types.Value, error) {
+	expr, err := n.Expression.Eval(ctx)
+	if err != nil {
+		return nil, err
+	}
+	exprBool, err := expr.ToBooleanValue(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if exprBool.Value == true {
+		return n.Statements.Eval(ctx)
+	}
+	return nil, nil
+}
+
 type BinaryOpNode struct {
 	Left     Node
 	Right    Node
@@ -70,6 +90,17 @@ type IdentifierNode struct {
 
 func (i IdentifierNode) Eval(ctx *types.Context) (types.Value, error) {
 	return types.IdentifierValue{Value: i.Value}, nil
+}
+
+type BooleanNode struct {
+	Value string
+}
+
+func (t BooleanNode) Eval(ctx *types.Context) (types.Value, error) {
+	if t.Value == "true" {
+		return types.BooleanValue{Value: true}, nil
+	}
+	return types.BooleanValue{Value: false}, nil
 }
 
 type NumberNode struct {

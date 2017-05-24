@@ -14,6 +14,13 @@ func createNumberNode(o yySymType) yySymType {
 	return yySymType{node: node}
 }
 
+func createBooleanNode(o yySymType) yySymType {
+	node := syntax.BooleanNode{
+		Value: o.s,
+	}
+	return yySymType{node: node}
+}
+
 func createStringNode(o yySymType) yySymType {
 	node := syntax.StringNode{
 		Value: o.s,
@@ -33,6 +40,15 @@ func createBinaryOpNode(operator yySymType, left yySymType, right yySymType) yyS
 		Left:     left.node,
 		Right:    right.node,
 		Operator: operator.s,
+	}
+	return yySymType{node: node}
+}
+
+func createIfNode(expr yySymType, statements yySymType) yySymType {
+	statementsNode := statements.node.(*syntax.StatementsNode)
+	node := syntax.ConditionalNode{
+		Expression: expr.node,
+		Statements: statementsNode,
 	}
 	return yySymType{node: node}
 }
