@@ -3,6 +3,7 @@ package types
 import (
 	"errors"
 	"strconv"
+	"reflect"
 )
 
 var _ Value = BooleanValue{}
@@ -66,4 +67,26 @@ func (a BooleanValue) Subtract(ctx *Context, b Value) (Value, error) {
 
 func (a BooleanValue) Assign(ctx *Context, b Value) (Value, error) {
 	return nil, errors.New("ReferenceError: Invalid left-hand side in assignment")
+}
+
+func (a BooleanValue) Equal(ctx *Context, b Value) (Value, error) {
+	ab, err := b.ToActualValue(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if reflect.TypeOf(a) == reflect.TypeOf(ab) && a == ab {
+		return BooleanValue{Value:true}, nil
+	}
+	return BooleanValue{Value:false}, nil
+}
+
+func (a BooleanValue) NotEqual(ctx *Context, b Value) (Value, error) {
+	ab, err := b.ToActualValue(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if reflect.TypeOf(a) != reflect.TypeOf(ab) && a != ab {
+		return BooleanValue{Value:true}, nil
+	}
+	return BooleanValue{Value:false}, nil
 }

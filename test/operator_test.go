@@ -84,4 +84,42 @@ func TestOperators(t *testing.T) {
 		assertEval("x = y = z = 1;", intVal(1))
 		assertEval("x = true;", boolVal(true))
 	})
+
+	Convey("Equality", t, func() {
+		// Int tests
+		assertEval("1 === 1;", boolVal(true))
+		assertEval("1 === 2;", boolVal(false))
+		assertEval("1 + 1 === 3 - 2;", boolVal(true))
+
+		// String tests
+		assertEval("'dog' === 'dog';", boolVal(true))
+		assertEval("'dog' === 'cat';", boolVal(false))
+
+		// Bool tests
+		assertEval("true === true;", boolVal(true))
+		assertEval("true === false;", boolVal(false))
+
+		// NaN tests
+		assertEval("NaN === NaN;", boolVal(false))
+		assertEval("NaN === 'hi';", boolVal(false))
+	})
+
+	Convey("Inequality", t, func() {
+		// Int tests
+		assertEval("1 !== 1;", boolVal(false))
+		assertEval("1 !== 2;", boolVal(true))
+		assertEval("1 + 1 !== 3 - 2;", boolVal(false))
+
+		// String tests
+		assertEval("'dog' !== 'dog';", boolVal(false))
+		assertEval("'dog' !== 'cat';", boolVal(true))
+
+		// Bool tests
+		assertEval("true !== true;", boolVal(false))
+		assertEval("true !== false;", boolVal(true))
+
+		// NaN tests
+		assertEval("NaN !== NaN;", boolVal(true))
+		assertEval("NaN !== 'hi';", boolVal(true))
+	})
 }

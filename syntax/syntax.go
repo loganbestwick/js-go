@@ -11,6 +11,8 @@ const (
 	ADD_OP        = "+"
 	SUBTRACT_OP   = "-"
 	ASSIGNMENT_OP = "="
+	EQUALITY_OP   = "==="
+	INEQUALITY_OP = "!=="
 )
 
 type Node interface {
@@ -79,6 +81,10 @@ func (n BinaryOpNode) Eval(ctx *types.Context) (types.Value, error) {
 		return lv.Subtract(ctx, rv)
 	case ASSIGNMENT_OP:
 		return lv.Assign(ctx, rv)
+	case EQUALITY_OP:
+		return lv.Equal(ctx, rv)
+	case INEQUALITY_OP:
+		return lv.NotEqual(ctx, rv)
 	default:
 		return nil, fmt.Errorf("operator %s not recognized", n.Operator)
 	}
