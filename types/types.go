@@ -48,13 +48,9 @@ type Value interface {
 	// Rules for assignment:
 	Assign(*Context, Value) (Value, error)
 
-	// Rules for equality:
-	// Strict equality rules only (===)
-	// Left value must equal type and value of right value
-	Equal(*Context, Value) (Value, error)
-
-	// Rules for inequality:
-	// Strict equality rules only (!==)
-	// Left value's type or value is not equal to right's
-	NotEqual(*Context, Value) (Value, error)
+	// Rules for compare:
+	// Returns 0 if they are equal
+	// Returns >0 if this value is > passed-in value
+	// Returns <0 if this value is < passed-in value
+	Compare(*Context, Value) (int, error)
 }

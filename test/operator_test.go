@@ -89,7 +89,7 @@ func TestOperators(t *testing.T) {
 		// Int tests
 		assertEval("1 === 1;", boolVal(true))
 		assertEval("1 === 2;", boolVal(false))
-		assertEval("1 + 1 === 3 - 2;", boolVal(true))
+		assertEval("1 + 1 === 3 - 2;", boolVal(false))
 
 		// String tests
 		assertEval("'dog' === 'dog';", boolVal(true))

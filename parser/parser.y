@@ -13,7 +13,8 @@ import "github.com/loganbestwick/js-go/syntax"
 %token NUMBER
 %token STRING
 %token IDENTIFIER
-%token BINARY_OPERATOR
+%token BIN_OP_1
+%token BIN_OP_2
 %token ASSIGNMENT
 %token END
 %token IF
@@ -23,7 +24,8 @@ import "github.com/loganbestwick/js-go/syntax"
 %token RB
 
 %right ASSIGNMENT
-%left BINARY_OPERATOR
+%left BIN_OP_1
+%left BIN_OP_2
 
 %%
 program: statements
@@ -64,7 +66,11 @@ expr: BOOLEAN
 {
   $$ = createIdentifierNode($1)
 }
-| expr BINARY_OPERATOR expr
+| expr BIN_OP_2 expr
+{
+  $$ = createBinaryOpNode($2, $1, $3)
+}
+| expr BIN_OP_1 expr
 {
   $$ = createBinaryOpNode($2, $1, $3)
 }

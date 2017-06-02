@@ -82,6 +82,10 @@ func (n BinaryOpNode) Eval(ctx *types.Context) (types.Value, error) {
 	case ASSIGNMENT_OP:
 		return lv.Assign(ctx, rv)
 	case EQUALITY_OP:
+		cmp := lv.Compare(ctx, rv)
+		if cmp == 0 {
+			return types.BooleanValue{Value: true}
+		}
 		return lv.Equal(ctx, rv)
 	case INEQUALITY_OP:
 		return lv.NotEqual(ctx, rv)
