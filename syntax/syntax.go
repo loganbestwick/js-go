@@ -11,8 +11,12 @@ const (
 	ADD_OP        = "+"
 	SUBTRACT_OP   = "-"
 	ASSIGNMENT_OP = "="
-	EQUALITY_OP   = "==="
-	INEQUALITY_OP = "!=="
+	GREATER_THAN_OP = ">"
+	LESS_THAN_OP = "<"
+	GREATER_THAN_OR_EQUAL_OP = ">="
+	LESS_THAN_OR_EQUAL_OP = "<="
+	EQUALITY_OP_STRICT   = "==="
+	INEQUALITY_OP_STRICT = "!=="
 )
 
 type Node interface {
@@ -81,14 +85,46 @@ func (n BinaryOpNode) Eval(ctx *types.Context) (types.Value, error) {
 		return lv.Subtract(ctx, rv)
 	case ASSIGNMENT_OP:
 		return lv.Assign(ctx, rv)
-	case EQUALITY_OP:
-		cmp := lv.Compare(ctx, rv)
-		if cmp == 0 {
-			return types.BooleanValue{Value: true}
-		}
+	case EQUALITY_OP_STRICT:
 		return lv.Equal(ctx, rv)
-	case INEQUALITY_OP:
+	case INEQUALITY_OP_STRICT:
 		return lv.NotEqual(ctx, rv)
+	case GREATER_THAN_OP:
+		cmp, err := lv.Compare(ctx, rv)
+		if err != nil {
+			return nil, err
+		}
+		if *cmp > 0 {
+			return types.BooleanValue{Value: true}, nil
+		}
+		return types.BooleanValue{Value: false}, nil
+	case GREATER_THAN_OR_EQUAL_OP:
+		cmp, err := lv.Compare(ctx, rv)
+		if err != nil {
+			return nil, err
+		}
+		if *cmp >= 0 {
+			return types.BooleanValue{Value: true}, nil
+		}
+		return types.BooleanValue{Value: false}, nil
+	case LESS_THAN_OP:
+		cmp, err := lv.Compare(ctx, rv)
+		if err != nil {
+			return nil, err
+		}
+		if *cmp < 0 {
+			return types.BooleanValue{Value: true}, nil
+		}
+		return types.BooleanValue{Value: false}, nil
+	case LESS_THAN_OR_EQUAL_OP:
+		cmp, err := lv.Compare(ctx, rv)
+		if err != nil {
+			return nil, err
+		}
+		if *cmp <= 0 {
+			return types.BooleanValue{Value: true}, nil
+		}
+		return types.BooleanValue{Value: false}, nil
 	default:
 		return nil, fmt.Errorf("operator %s not recognized", n.Operator)
 	}

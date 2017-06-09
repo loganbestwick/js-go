@@ -3,7 +3,6 @@ package types
 import (
 	"errors"
 	"strconv"
-	"reflect"
 )
 
 var _ Value = NumberValue{}
@@ -104,4 +103,13 @@ func (a NumberValue) NotEqual(ctx *Context, b Value) (Value, error) {
 		}
 	}
 	return BooleanValue{Value:true}, nil
+}
+
+func (a NumberValue) Compare(ctx *Context, b Value) (*int, error) {
+	nb, err := b.ToNumberValue(ctx)
+	if err != nil {
+		return nil, err
+	}
+	cmp := int(a.Value - nb.Value)
+	return &cmp, nil
 }

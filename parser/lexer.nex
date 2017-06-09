@@ -8,6 +8,7 @@
 /true/                   { lval.s = yylex.Text(); return BOOLEAN }
 /false/                  { lval.s = yylex.Text(); return BOOLEAN }
 /[\!\=]==/               { lval.s = yylex.Text(); return BIN_OP_1 }
+/[><]=?/                 { lval.s = yylex.Text(); return BIN_OP_1 }
 /[\+\-]/                 { lval.s = yylex.Text(); return BIN_OP_2 }
 /=/                      { lval.s = yylex.Text(); return ASSIGNMENT }
 /'[^']*'/                { lval.s = yylex.Text(); return STRING }
