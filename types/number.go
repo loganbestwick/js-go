@@ -94,12 +94,14 @@ func (a NumberValue) Equal(ctx *Context, b Value) (Value, error) {
 }
 
 func (a NumberValue) NotEqual(ctx *Context, b Value) (Value, error) {
-	nb, err := b.ToActualValue(ctx)
+	ab, err := b.ToActualValue(ctx)
 	if err != nil {
 		return nil, err
 	}
-	if reflect.TypeOf(a) != reflect.TypeOf(nb) && a != nb {
-		return BooleanValue{Value:true}, nil
+	if nb, ok := ab.(NumberValue); ok {
+		if !a.NaN && !nb.NaN && a.Value == nb.Value {
+			return BooleanValue{Value:false}, nil
+		}
 	}
-	return BooleanValue{Value:false}, nil
+	return BooleanValue{Value:true}, nil
 }

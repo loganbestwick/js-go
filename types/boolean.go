@@ -74,8 +74,10 @@ func (a BooleanValue) Equal(ctx *Context, b Value) (Value, error) {
 	if err != nil {
 		return nil, err
 	}
-	if reflect.TypeOf(a) == reflect.TypeOf(ab) && a == ab {
-		return BooleanValue{Value:true}, nil
+	if bb, ok := ab.(BooleanValue); ok {
+		if a.Value == bb.Value {
+			return BooleanValue{Value:true}, nil
+		}
 	}
 	return BooleanValue{Value:false}, nil
 }
@@ -85,8 +87,10 @@ func (a BooleanValue) NotEqual(ctx *Context, b Value) (Value, error) {
 	if err != nil {
 		return nil, err
 	}
-	if reflect.TypeOf(a) != reflect.TypeOf(ab) && a != ab {
-		return BooleanValue{Value:true}, nil
+	if bb, ok := ab.(BooleanValue); ok {
+		if a.Value == bb.Value {
+			return BooleanValue{Value:false}, nil
+		}
 	}
-	return BooleanValue{Value:false}, nil
+	return BooleanValue{Value:true}, nil
 }

@@ -60,23 +60,27 @@ func (a StringValue) Assign(ctx *Context, value Value) (Value, error) {
 }
 
 func (a StringValue) Equal(ctx *Context, b Value) (Value, error) {
-	sb, err := b.ToActualValue(ctx)
+	ab, err := b.ToActualValue(ctx)
 	if err != nil {
 		return nil, err
 	}
-	if reflect.TypeOf(a) == reflect.TypeOf(sb) && a == sb {
-		return BooleanValue{Value:true}, nil
+	if sb, ok := ab.(StringValue); ok {
+		if a.Value == sb.Value {
+			return BooleanValue{Value:true}, nil
+		}
 	}
 	return BooleanValue{Value:false}, nil
 }
 
 func (a StringValue) NotEqual(ctx *Context, b Value) (Value, error) {
-	sb, err := b.ToActualValue(ctx)
+	ab, err := b.ToActualValue(ctx)
 	if err != nil {
 		return nil, err
 	}
-	if reflect.TypeOf(a) != reflect.TypeOf(sb) && a != sb {
-		return BooleanValue{Value:true}, nil
+	if sb, ok := ab.(StringValue); ok {
+		if a.Value == sb.Value {
+			return BooleanValue{Value:false}, nil
+		}
 	}
-	return BooleanValue{Value:false}, nil
+	return BooleanValue{Value:true}, nil
 }
