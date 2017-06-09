@@ -87,15 +87,10 @@ func (a IdentifierValue) NotEqual(ctx *Context, b Value) (Value, error) {
 	return aa.NotEqual(ctx, b)
 }
 
-func (a IdentifierValue) Compare(ctx *Context, b Value) (*int, error) {
-	na, err := a.ToNumberValue(ctx)
+func (a IdentifierValue) Compare(ctx *Context, b Value, strict bool) (int, bool, error) {
+	aa, err := a.ToActualValue(ctx)
 	if err != nil {
-		return nil, err
+		return 0, false, err
 	}
-	nb, err := b.ToNumberValue(ctx)
-	if err != nil {
-		return nil, err
-	}
-	cmp := int(na.Value - nb.Value)
-	return &cmp, nil
+	return aa.Compare(ctx, b, strict)
 }

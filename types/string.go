@@ -3,6 +3,7 @@ package types
 import (
 	"errors"
 	"strconv"
+	"strings"
 )
 
 var _ Value = StringValue{}
@@ -65,10 +66,10 @@ func (a StringValue) Equal(ctx *Context, b Value) (Value, error) {
 	}
 	if sb, ok := ab.(StringValue); ok {
 		if a.Value == sb.Value {
-			return BooleanValue{Value:true}, nil
+			return BooleanValue{Value: true}, nil
 		}
 	}
-	return BooleanValue{Value:false}, nil
+	return BooleanValue{Value: false}, nil
 }
 
 func (a StringValue) NotEqual(ctx *Context, b Value) (Value, error) {
@@ -78,21 +79,28 @@ func (a StringValue) NotEqual(ctx *Context, b Value) (Value, error) {
 	}
 	if sb, ok := ab.(StringValue); ok {
 		if a.Value == sb.Value {
-			return BooleanValue{Value:false}, nil
+			return BooleanValue{Value: false}, nil
 		}
 	}
-	return BooleanValue{Value:true}, nil
+	return BooleanValue{Value: true}, nil
 }
 
-func (a StringValue) Compare(ctx *Context, b Value) (*int, error) {
+func (a StringValue) Compare(ctx *Context, b Value, strict bool) (int, bool, error) {
+	ab, err := b.ToActualValue(ctx)
+	if err != nil {
+		return 0, false, err
+	}
+	if strict {
+		if _, ok := ab.(StringValue); !ok {
+			return 0, true, nil
+		}
+	}
+	if sb, ok := ab.(StringValue); ok {
+		return strings.Compare(a.Value, sb.Value), false, nil
+	}
 	na, err := a.ToNumberValue(ctx)
 	if err != nil {
-		return nil, err
+		return 0, false, err
 	}
-	nb, err := b.ToNumberValue(ctx)
-	if err != nil {
-		return nil, err
-	}
-	cmp := int(na.Value - nb.Value)
-	return &cmp, nil
+	return na.Compare(ctx, b, false)
 }

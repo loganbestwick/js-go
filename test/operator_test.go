@@ -137,10 +137,10 @@ func TestOperators(t *testing.T) {
 		assertEval("y = 2; x = 1; x > y;", boolVal(false))
 		assertEval("y = 2; x = 1; x > x;", boolVal(false))
 		assertEval("y = 2; x = 1; x + 2 > y;", boolVal(true))
-		//assertEval("cat > dog;", boolVal(true))
-		//assertEval("dog > cat;", boolVal(false))
-		//assertEval("cat > cat;", boolVal(false))
-
+		assertEval("'z' > 'a';", boolVal(true))
+		assertEval("'a' > 'Z';", boolVal(true))
+		assertEval("'A' > '9';", boolVal(true))
+		assertEval("'9' > '-';", boolVal(true))
 
 		// Less Than tests
 		assertEval("true < false;", boolVal(false))

@@ -8,15 +8,15 @@ import (
 )
 
 const (
-	ADD_OP        = "+"
-	SUBTRACT_OP   = "-"
-	ASSIGNMENT_OP = "="
-	GREATER_THAN_OP = ">"
-	LESS_THAN_OP = "<"
+	ADD_OP                   = "+"
+	SUBTRACT_OP              = "-"
+	ASSIGNMENT_OP            = "="
+	GREATER_THAN_OP          = ">"
+	LESS_THAN_OP             = "<"
 	GREATER_THAN_OR_EQUAL_OP = ">="
-	LESS_THAN_OR_EQUAL_OP = "<="
-	EQUALITY_OP_STRICT   = "==="
-	INEQUALITY_OP_STRICT = "!=="
+	LESS_THAN_OR_EQUAL_OP    = "<="
+	EQUALITY_OP_STRICT       = "==="
+	INEQUALITY_OP_STRICT     = "!=="
 )
 
 type Node interface {
@@ -86,48 +86,37 @@ func (n BinaryOpNode) Eval(ctx *types.Context) (types.Value, error) {
 	case ASSIGNMENT_OP:
 		return lv.Assign(ctx, rv)
 	case EQUALITY_OP_STRICT:
-		return lv.Equal(ctx, rv)
+		return comp(ctx, lv, rv, true, false, 0)
 	case INEQUALITY_OP_STRICT:
-		return lv.NotEqual(ctx, rv)
+		return comp(ctx, lv, rv, true, true, 0)
 	case GREATER_THAN_OP:
-		cmp, err := lv.Compare(ctx, rv)
-		if err != nil {
-			return nil, err
-		}
-		if *cmp > 0 {
-			return types.BooleanValue{Value: true}, nil
-		}
-		return types.BooleanValue{Value: false}, nil
+		return comp(ctx, lv, rv, false, false, 1)
 	case GREATER_THAN_OR_EQUAL_OP:
-		cmp, err := lv.Compare(ctx, rv)
-		if err != nil {
-			return nil, err
-		}
-		if *cmp >= 0 {
-			return types.BooleanValue{Value: true}, nil
-		}
-		return types.BooleanValue{Value: false}, nil
+		return comp(ctx, lv, rv, false, false, 0, 1)
 	case LESS_THAN_OP:
-		cmp, err := lv.Compare(ctx, rv)
-		if err != nil {
-			return nil, err
-		}
-		if *cmp < 0 {
-			return types.BooleanValue{Value: true}, nil
-		}
-		return types.BooleanValue{Value: false}, nil
+		return comp(ctx, lv, rv, false, false, -1)
 	case LESS_THAN_OR_EQUAL_OP:
-		cmp, err := lv.Compare(ctx, rv)
-		if err != nil {
-			return nil, err
-		}
-		if *cmp <= 0 {
-			return types.BooleanValue{Value: true}, nil
-		}
-		return types.BooleanValue{Value: false}, nil
+		return comp(ctx, lv, rv, false, false, -1, 0)
 	default:
 		return nil, fmt.Errorf("operator %s not recognized", n.Operator)
 	}
+}
+
+func comp(ctx *types.Context, lv types.Value, rv types.Value, strict bool, invert bool, expect ...int) (types.Value, error) {
+	cmp, forceFalse, err := lv.Compare(ctx, rv, strict)
+	if err != nil {
+		return nil, err
+	}
+	if forceFalse {
+		return types.BooleanValue{Value: false}, nil
+	}
+	successValue := !invert
+	for _, val := range expect {
+		if val == cmp {
+			return types.BooleanValue{Value: successValue}, nil
+		}
+	}
+	return types.BooleanValue{Value: !successValue}, nil
 }
 
 type IdentifierNode struct {

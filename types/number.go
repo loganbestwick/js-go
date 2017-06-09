@@ -86,10 +86,10 @@ func (a NumberValue) Equal(ctx *Context, b Value) (Value, error) {
 	}
 	if nb, ok := ab.(NumberValue); ok {
 		if !a.NaN && !nb.NaN && a.Value == nb.Value {
-			return BooleanValue{Value:true}, nil
+			return BooleanValue{Value: true}, nil
 		}
 	}
-	return BooleanValue{Value:false}, nil
+	return BooleanValue{Value: false}, nil
 }
 
 func (a NumberValue) NotEqual(ctx *Context, b Value) (Value, error) {
@@ -99,17 +99,34 @@ func (a NumberValue) NotEqual(ctx *Context, b Value) (Value, error) {
 	}
 	if nb, ok := ab.(NumberValue); ok {
 		if !a.NaN && !nb.NaN && a.Value == nb.Value {
-			return BooleanValue{Value:false}, nil
+			return BooleanValue{Value: false}, nil
 		}
 	}
-	return BooleanValue{Value:true}, nil
+	return BooleanValue{Value: true}, nil
 }
 
-func (a NumberValue) Compare(ctx *Context, b Value) (*int, error) {
+func (a NumberValue) Compare(ctx *Context, b Value, strict bool) (int, bool, error) {
+	if strict {
+		ab, err := b.ToActualValue(ctx)
+		if err != nil {
+			return 0, false, err
+		}
+		if _, ok := ab.(NumberValue); !ok {
+			return 0, true, nil
+		}
+	}
 	nb, err := b.ToNumberValue(ctx)
 	if err != nil {
-		return nil, err
+		return 0, false, err
 	}
-	cmp := int(a.Value - nb.Value)
-	return &cmp, nil
+	if a.NaN || nb.NaN {
+		return 0, true, nil
+	}
+	cmp := 0
+	if a.Value > nb.Value {
+		cmp = 1
+	} else if a.Value < nb.Value {
+		cmp = -1
+	}
+	return cmp, false, nil
 }
