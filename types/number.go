@@ -79,32 +79,6 @@ func (a NumberValue) Assign(ctx *Context, value Value) (Value, error) {
 	return nil, errors.New("ReferenceError: Invalid left-hand side in assignment")
 }
 
-func (a NumberValue) Equal(ctx *Context, b Value) (Value, error) {
-	ab, err := b.ToActualValue(ctx)
-	if err != nil {
-		return nil, err
-	}
-	if nb, ok := ab.(NumberValue); ok {
-		if !a.NaN && !nb.NaN && a.Value == nb.Value {
-			return BooleanValue{Value: true}, nil
-		}
-	}
-	return BooleanValue{Value: false}, nil
-}
-
-func (a NumberValue) NotEqual(ctx *Context, b Value) (Value, error) {
-	ab, err := b.ToActualValue(ctx)
-	if err != nil {
-		return nil, err
-	}
-	if nb, ok := ab.(NumberValue); ok {
-		if !a.NaN && !nb.NaN && a.Value == nb.Value {
-			return BooleanValue{Value: false}, nil
-		}
-	}
-	return BooleanValue{Value: true}, nil
-}
-
 func (a NumberValue) Compare(ctx *Context, b Value, strict bool) (int, bool, error) {
 	if strict {
 		ab, err := b.ToActualValue(ctx)

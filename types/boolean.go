@@ -68,32 +68,6 @@ func (a BooleanValue) Assign(ctx *Context, b Value) (Value, error) {
 	return nil, errors.New("ReferenceError: Invalid left-hand side in assignment")
 }
 
-func (a BooleanValue) Equal(ctx *Context, b Value) (Value, error) {
-	ab, err := b.ToActualValue(ctx)
-	if err != nil {
-		return nil, err
-	}
-	if bb, ok := ab.(BooleanValue); ok {
-		if a.Value == bb.Value {
-			return BooleanValue{Value: true}, nil
-		}
-	}
-	return BooleanValue{Value: false}, nil
-}
-
-func (a BooleanValue) NotEqual(ctx *Context, b Value) (Value, error) {
-	ab, err := b.ToActualValue(ctx)
-	if err != nil {
-		return nil, err
-	}
-	if bb, ok := ab.(BooleanValue); ok {
-		if a.Value == bb.Value {
-			return BooleanValue{Value: false}, nil
-		}
-	}
-	return BooleanValue{Value: true}, nil
-}
-
 func (a BooleanValue) Compare(ctx *Context, b Value, strict bool) (int, bool, error) {
 	if strict {
 		ab, err := b.ToActualValue(ctx)

@@ -53,12 +53,4 @@ type Value interface {
 	// Returns >0 if this value is > passed-in value
 	// Returns <0 if this value is < passed-in value
 	Compare(*Context, Value, bool) (int, bool, error)
-
-	// Rules for Equal:
-	// Return true if the values' type and values are equal
-	Equal(*Context, Value) (Value, error)
-
-	// Rules for NotEqual:
-	// Return true if the values' type or values are not equal
-	NotEqual(*Context, Value) (Value, error)
 }

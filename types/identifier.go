@@ -71,22 +71,6 @@ func (a IdentifierValue) Assign(ctx *Context, b Value) (Value, error) {
 	return ab, nil
 }
 
-func (a IdentifierValue) Equal(ctx *Context, b Value) (Value, error) {
-	aa, err := ctx.Get(a.Value)
-	if err != nil {
-		return nil, err
-	}
-	return aa.Equal(ctx, b)
-}
-
-func (a IdentifierValue) NotEqual(ctx *Context, b Value) (Value, error) {
-	aa, err := ctx.Get(a.Value)
-	if err != nil {
-		return nil, err
-	}
-	return aa.NotEqual(ctx, b)
-}
-
 func (a IdentifierValue) Compare(ctx *Context, b Value, strict bool) (int, bool, error) {
 	aa, err := a.ToActualValue(ctx)
 	if err != nil {

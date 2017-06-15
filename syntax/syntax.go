@@ -15,6 +15,8 @@ const (
 	LESS_THAN_OP             = "<"
 	GREATER_THAN_OR_EQUAL_OP = ">="
 	LESS_THAN_OR_EQUAL_OP    = "<="
+	EQUALITY_OP              = "=="
+	INEQUALITY_OP            = "!="
 	EQUALITY_OP_STRICT       = "==="
 	INEQUALITY_OP_STRICT     = "!=="
 )
@@ -85,6 +87,10 @@ func (n BinaryOpNode) Eval(ctx *types.Context) (types.Value, error) {
 		return lv.Subtract(ctx, rv)
 	case ASSIGNMENT_OP:
 		return lv.Assign(ctx, rv)
+	case EQUALITY_OP:
+		return comp(ctx, lv, rv, false, false, 0)
+	case INEQUALITY_OP:
+		return comp(ctx, lv, rv, false, true, 0)
 	case EQUALITY_OP_STRICT:
 		return comp(ctx, lv, rv, true, false, 0)
 	case INEQUALITY_OP_STRICT:
@@ -108,7 +114,11 @@ func comp(ctx *types.Context, lv types.Value, rv types.Value, strict bool, inver
 		return nil, err
 	}
 	if forceFalse {
-		return types.BooleanValue{Value: false}, nil
+		if invert {
+			return types.BooleanValue{Value: true}, nil
+		} else {
+			return types.BooleanValue{Value: false}, nil
+		}
 	}
 	successValue := !invert
 	for _, val := range expect {

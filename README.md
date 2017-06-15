@@ -11,7 +11,8 @@ List of features we intend to implement:
 * ~~Type System~~ DONE-ish (Just strings and integers for now)
 * ~~Operators~~ DONE-ish (Just addition and subtraction for now)
 * ~~Variables~~ DONE
-* Conditionals (if, if-else, maybe case)
+* ~~Conditionals (if, if-else, maybe case)~~ DONE-ish (just if)
+* ~~Comparisons~~ DONE
 * Looping statements (while, for)
 * Functions
 * Closures
