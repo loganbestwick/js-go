@@ -8,7 +8,8 @@ import (
 
 func TestLoops(t *testing.T) {
 	Convey("while", t, func() {
-		assertEval("x = 0; while(false) { x = x + 1 }; x;", intVal(0))
-		assertEval("x = 0; while(x < 3) { x = x + 1 }; x;", intVal(3))
+		assertEval("x = 0; while(false) { x = x + 1; } x;", intVal(0))
+		assertEval("x = 0; while(x < 3) { x = x + 1; } x;", intVal(3))
+		assertEval("x = 0; while(x < 2) { x = x + 1; }", intVal(2))
 	})
 }

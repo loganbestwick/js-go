@@ -45,12 +45,12 @@ func (n StatementsNode) Eval(ctx *types.Context) (types.Value, error) {
 	return ret.ToActualValue(ctx)
 }
 
-type ConditionalNode struct {
+type IfNode struct {
 	Expression Node
 	Statements *StatementsNode
 }
 
-func (n ConditionalNode) Eval(ctx *types.Context) (types.Value, error) {
+func (n IfNode) Eval(ctx *types.Context) (types.Value, error) {
 	expr, err := n.Expression.Eval(ctx)
 	if err != nil {
 		return nil, err
@@ -63,6 +63,34 @@ func (n ConditionalNode) Eval(ctx *types.Context) (types.Value, error) {
 		return n.Statements.Eval(ctx)
 	}
 	return nil, nil
+}
+
+type WhileNode struct {
+	Expression Node
+	Statements *StatementsNode
+}
+
+func (n WhileNode) Eval(ctx *types.Context) (types.Value, error) {
+	var lastVal types.Value
+	loop := true
+	for loop {
+		val, err := n.Expression.Eval(ctx)
+		if err != nil {
+			return nil, err
+		}
+		boolVal, err := val.ToBooleanValue(ctx)
+		if err != nil {
+			return nil, err
+		}
+		loop = boolVal.Value
+		if loop {
+			lastVal, err = n.Statements.Eval(ctx)
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+	return lastVal, nil
 }
 
 type BinaryOpNode struct {

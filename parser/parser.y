@@ -18,6 +18,7 @@ import "github.com/loganbestwick/js-go/syntax"
 %token ASSIGNMENT
 %token END
 %token IF
+%token WHILE
 %token LP
 %token RP
 %token LB
@@ -49,6 +50,10 @@ statement: expr END
 | IF LP expr RP LB statements RB
 {
   $$ = createIfNode($3, $6)
+}
+| WHILE LP expr RP LB statements RB
+{
+  $$ = createWhileNode($3, $6)
 }
 
 expr: BOOLEAN
