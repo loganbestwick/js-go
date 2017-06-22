@@ -17,5 +17,8 @@ func TestLoops(t *testing.T) {
 		assertEval("z = 0; for(x = 0; x < 1; x = x + 1) { z = 10; } z;", intVal(10))
 		assertEval("z = 0; for(x = 0; x < 1; x = x + 1) { z = 10; }", intVal(10))
 		assertEval("z = 0; for(x = 0; x < 20; x = x + 1) { z = z + 1; } z;", intVal(20))
+
+		assertEval("for(x = 0; x < 5; x = x + 1) { x; } x;", intVal(5))
+		assertEval("for(x = 0; x < 0; x = x + 1) { x; } x;", intVal(0))
 	})
 }
