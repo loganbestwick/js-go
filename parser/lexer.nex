@@ -1,5 +1,6 @@
 /;/                      { return END }
 /if/                     { return IF }
+/for/                    { return FOR }
 /while/                  { return WHILE }
 /\(/                     { return LP }
 /\)/                     { return RP }

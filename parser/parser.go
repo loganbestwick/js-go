@@ -53,6 +53,17 @@ func createIfNode(expr yySymType, statements yySymType) yySymType {
 	return yySymType{node: node}
 }
 
+func createForNode(initExpr yySymType, condition yySymType, loopExpr yySymType, statements yySymType) yySymType {
+	statementsNode := statements.node.(*syntax.StatementsNode)
+	node := syntax.ForNode{
+		InitExpression: initExpr.node,
+		Condition:      condition.node,
+		LoopExpression: loopExpr.node,
+		Statements:     statementsNode,
+	}
+	return yySymType{node: node}
+}
+
 func createWhileNode(expr yySymType, statements yySymType) yySymType {
 	statementsNode := statements.node.(*syntax.StatementsNode)
 	node := syntax.WhileNode{

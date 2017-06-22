@@ -18,6 +18,7 @@ import "github.com/loganbestwick/js-go/syntax"
 %token ASSIGNMENT
 %token END
 %token IF
+%token FOR
 %token WHILE
 %token LP
 %token RP
@@ -50,6 +51,10 @@ statement: expr END
 | IF LP expr RP LB statements RB
 {
   $$ = createIfNode($3, $6)
+}
+| FOR LP statement statement expr RP LB statements RB
+{
+  $$ = createForNode($3, $4, $5, $8)
 }
 | WHILE LP expr RP LB statements RB
 {

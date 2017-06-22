@@ -65,6 +65,44 @@ func (n IfNode) Eval(ctx *types.Context) (types.Value, error) {
 	return nil, nil
 }
 
+type ForNode struct {
+	InitExpression Node
+	Condition      Node
+	LoopExpression Node
+	Statements     *StatementsNode
+}
+
+func (n ForNode) Eval(ctx *types.Context) (types.Value, error) {
+	var lastVal types.Value
+	_, err := n.InitExpression.Eval(ctx)
+	if err != nil {
+		return nil, err
+	}
+	loop := true
+	for loop {
+		val, err := n.Condition.Eval(ctx)
+		if err != nil {
+			return nil, err
+		}
+		boolVal, err := val.ToBooleanValue(ctx)
+		if err != nil {
+			return nil, err
+		}
+		loop = boolVal.Value
+		if loop {
+			lastVal, err = n.Statements.Eval(ctx)
+			if err != nil {
+				return nil, err
+			}
+			_, err := n.LoopExpression.Eval(ctx)
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+	return lastVal, nil
+}
+
 type WhileNode struct {
 	Expression Node
 	Statements *StatementsNode
