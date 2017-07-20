@@ -13,7 +13,7 @@ List of features we intend to implement:
 * ~~Variables~~ DONE
 * ~~Conditionals (if, if-else, maybe case)~~ DONE-ish (just if)
 * ~~Comparisons~~ DONE
-* Looping statements (while, for)
+* ~~Looping statements~~ (while, for) DONE
 * Functions
 * Closures
 * Javascript objects (and object notation)

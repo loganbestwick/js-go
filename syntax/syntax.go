@@ -45,6 +45,31 @@ func (n StatementsNode) Eval(ctx *types.Context) (types.Value, error) {
 	return ret.ToActualValue(ctx)
 }
 
+type FunctionNode struct {
+	Statements *StatementsNode
+}
+
+func (n FunctionNode) Eval(ctx *types.Context) (types.Value, error) {
+	return n.Statements.Eval(ctx)
+}
+
+type ReturnNode struct {
+	Expression Node
+}
+
+func (n ReturnNode) Eval(ctx *types.Context) (types.Value, error) {
+	return n.Expression.Eval(ctx)
+}
+
+type CallNode struct {
+	Expression Node
+}
+
+func (n CallNode) Eval(ctx *types.Context) (types.Value, error) {
+	n.Expression.Eval(ctx)
+	return nil, nil
+}
+
 type IfNode struct {
 	Expression Node
 	Statements *StatementsNode

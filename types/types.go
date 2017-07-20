@@ -48,6 +48,8 @@ type Value interface {
 	// Rules for assignment:
 	Assign(*Context, Value) (Value, error)
 
+	Call(*Context) (Value, error)
+
 	// Rules for Compare:
 	// Returns 0 if they are equal
 	// Returns >0 if this value is > passed-in value
