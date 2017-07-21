@@ -6,13 +6,24 @@ import (
 
 var _ Value = FunctionValue{}
 
+type Evalable interface {
+	Eval(*Context) (Value, error)
+}
+
+type ErrReturn struct {
+	ReturnValue Value
+}
+
+func (e *ErrReturn) Error() string {
+	return "[ReturnValue]"
+}
+
 type FunctionValue struct {
-	Value
+	Statements Evalable
 }
 
 func (a FunctionValue) ToString(ctx *Context) (string, error) {
-	//str := strconv.FormatBool(a.Value)
-	return "hi", nil
+	return "function() {...}", nil
 }
 
 func (a FunctionValue) ToActualValue(ctx *Context) (Value, error) {
@@ -20,7 +31,7 @@ func (a FunctionValue) ToActualValue(ctx *Context) (Value, error) {
 }
 
 func (a FunctionValue) ToStringValue(ctx *Context) (StringValue, error) {
-	return StringValue{ Value: "TBD" }, nil
+	return StringValue{Value: "function() {...}"}, nil
 }
 
 func (a FunctionValue) ToNumberValue(ctx *Context) (NumberValue, error) {
@@ -28,31 +39,23 @@ func (a FunctionValue) ToNumberValue(ctx *Context) (NumberValue, error) {
 }
 
 func (a FunctionValue) ToBooleanValue(ctx *Context) (BooleanValue, error) {
-	return BooleanValue{Value:true}, nil
+	return BooleanValue{Value: true}, nil
 }
 
 func (a FunctionValue) Add(ctx *Context, b Value) (Value, error) {
-	//ab, err := b.ToActualValue(ctx)
-	//if err != nil {
-	//	return nil, err
-	//}
-	//if _, ok := ab.(StringValue); ok {
-	//	sa, err := a.ToStringValue(ctx)
-	//	if err != nil {
-	//		return nil, err
-	//	}
-	//	return sa.Add(ctx, b)
-	//}
-	//na, err := a.ToNumberValue(ctx)
-	//if err != nil {
-	//	return nil, err
-	//}
-	//return na.Add(ctx, b)
-	return StringValue{Value: "hi"}, nil
+	sv, err := a.ToStringValue(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return sv.Add(ctx, b)
 }
 
 func (a FunctionValue) Subtract(ctx *Context, b Value) (Value, error) {
-	return NaN, nil
+	sa, err := a.ToNumberValue(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return sa.Subtract(ctx, b)
 }
 
 func (a FunctionValue) Assign(ctx *Context, b Value) (Value, error) {
@@ -60,19 +63,18 @@ func (a FunctionValue) Assign(ctx *Context, b Value) (Value, error) {
 }
 
 func (a FunctionValue) Compare(ctx *Context, b Value, strict bool) (int, bool, error) {
-	if strict {
-		ab, err := b.ToActualValue(ctx)
-		if err != nil {
-			return 0, false, err
-		}
-		if _, ok := ab.(BooleanValue); !ok {
-			return 0, true, nil
-		}
-	}
-	na, err := a.ToNumberValue(ctx)
+	ab, err := b.ToActualValue(ctx)
 	if err != nil {
 		return 0, false, err
 	}
-	return na.Compare(ctx, b, false)
+	if a == ab {
+		return 0, false, nil
+	} else {
+		return 0, true, nil
+	}
 }
 
+func (a FunctionValue) Call(ctx *Context) (Value, error) {
+	functionCtx := &Context{}
+	return a.Statements.Eval(functionCtx)
+}

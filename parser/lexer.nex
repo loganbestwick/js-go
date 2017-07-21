@@ -4,7 +4,6 @@
 /while/                  { return WHILE }
 /function/               { return FUNCTION }
 /return/                 { return RETURN }
-/\(\)/                   { return CALL }
 /\(/                     { return LP }
 /\)/                     { return RP }
 /\{/                     { return LB }

@@ -20,7 +20,6 @@ import "github.com/loganbestwick/js-go/syntax"
 %token IF
 %token FOR
 %token WHILE
-%token CALL
 %token FUNCTION
 %token RETURN
 
@@ -32,6 +31,8 @@ import "github.com/loganbestwick/js-go/syntax"
 %right ASSIGNMENT
 %left BIN_OP_1
 %left BIN_OP_2
+%left LP
+%left RP
 
 %%
 program: statements
@@ -64,7 +65,7 @@ statement: expr END
 {
   $$ = createWhileNode($3, $6)
 }
-| RETURN expr
+| RETURN expr END
 {
   $$ = createReturnNode($2)
 }
@@ -101,7 +102,7 @@ expr: BOOLEAN
 {
   $$ = createFunctionNode($5)
 }
-| expr CALL
+| expr LP RP
 {
   $$ = createCallNode($1)
 }

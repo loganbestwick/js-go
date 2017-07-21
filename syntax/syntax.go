@@ -50,7 +50,7 @@ type FunctionNode struct {
 }
 
 func (n FunctionNode) Eval(ctx *types.Context) (types.Value, error) {
-	return n.Statements.Eval(ctx)
+	return types.FunctionValue{Statements: n.Statements}, nil
 }
 
 type ReturnNode struct {
@@ -58,7 +58,15 @@ type ReturnNode struct {
 }
 
 func (n ReturnNode) Eval(ctx *types.Context) (types.Value, error) {
-	return n.Expression.Eval(ctx)
+	expr, err := n.Expression.Eval(ctx)
+	if err != nil {
+		return nil, err
+	}
+	val, err := expr.ToActualValue(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return nil, types.ErrReturn{ReturnValue: val}
 }
 
 type CallNode struct {
@@ -66,8 +74,11 @@ type CallNode struct {
 }
 
 func (n CallNode) Eval(ctx *types.Context) (types.Value, error) {
-	n.Expression.Eval(ctx)
-	return nil, nil
+	expr, err := n.Expression.Eval(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return expr.Call(ctx)
 }
 
 type IfNode struct {
