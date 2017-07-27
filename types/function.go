@@ -14,8 +14,12 @@ type ErrReturn struct {
 	ReturnValue Value
 }
 
-func (e *ErrReturn) Error() string {
-	return "[ReturnValue]"
+func (e ErrReturn) Error() string {
+	sv, err := e.ReturnValue.ToString(nil)
+	if err != nil {
+		return "error"
+	}
+	return sv
 }
 
 type FunctionValue struct {

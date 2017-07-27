@@ -66,7 +66,8 @@ func (n ReturnNode) Eval(ctx *types.Context) (types.Value, error) {
 	if err != nil {
 		return nil, err
 	}
-	return nil, types.ErrReturn{ReturnValue: val}
+	return nil, error(types.ErrReturn{ReturnValue: val})
+
 }
 
 type CallNode struct {
