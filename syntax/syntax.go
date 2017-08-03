@@ -66,7 +66,7 @@ func (n ReturnNode) Eval(ctx *types.Context) (types.Value, error) {
 	if err != nil {
 		return nil, err
 	}
-	return nil, error(types.ErrReturn{ReturnValue: val})
+	return nil, types.ErrReturn{ReturnValue: val}
 
 }
 
@@ -79,7 +79,14 @@ func (n CallNode) Eval(ctx *types.Context) (types.Value, error) {
 	if err != nil {
 		return nil, err
 	}
-	return expr.Call(ctx)
+	_, err = expr.Call(ctx)
+	if err != nil {
+		if errReturn, ok := err.(types.ErrReturn); ok {
+			return errReturn.ReturnValue, nil
+		}
+		return nil, err
+	}
+	return nil, nil
 }
 
 type IfNode struct {
