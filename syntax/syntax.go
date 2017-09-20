@@ -47,10 +47,11 @@ func (n StatementsNode) Eval(ctx *types.Context) (types.Value, error) {
 
 type FunctionNode struct {
 	Statements *StatementsNode
+	ArgumentNames []string
 }
 
 func (n FunctionNode) Eval(ctx *types.Context) (types.Value, error) {
-	return types.FunctionValue{Statements: n.Statements}, nil
+	return types.FunctionValue{Statements: n.Statements, Variables: n.ArgumentNames}, nil
 }
 
 type ReturnNode struct {
@@ -72,6 +73,7 @@ func (n ReturnNode) Eval(ctx *types.Context) (types.Value, error) {
 
 type CallNode struct {
 	Expression Node
+	Arguments []Node
 }
 
 func (n CallNode) Eval(ctx *types.Context) (types.Value, error) {
@@ -79,14 +81,7 @@ func (n CallNode) Eval(ctx *types.Context) (types.Value, error) {
 	if err != nil {
 		return nil, err
 	}
-	_, err = expr.Call(ctx)
-	if err != nil {
-		if errReturn, ok := err.(types.ErrReturn); ok {
-			return errReturn.ReturnValue, nil
-		}
-		return nil, err
-	}
-	return nil, nil
+	return expr.Call(ctx, n.Arguments)
 }
 
 type IfNode struct {

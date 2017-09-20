@@ -27,6 +27,7 @@ import "github.com/loganbestwick/js-go/syntax"
 %token RP
 %token LB
 %token RB
+%token COMMA
 
 %right ASSIGNMENT
 %left BIN_OP_1
@@ -70,6 +71,23 @@ statement: expr END
   $$ = createReturnNode($2)
 }
 
+identifiers: IDENTIFIER
+{
+  $$ = $1
+}
+| identifiers COMMA IDENTIFIER
+{
+  $$ = $1
+}
+
+arguments: expr
+{
+  $$ = $1
+}
+| arguments COMMA expr
+{
+  $$ = $1
+}
 
 expr: BOOLEAN
 {
@@ -100,10 +118,18 @@ expr: BOOLEAN
 }
 | FUNCTION LP RP LB statements RB
 {
-  $$ = createFunctionNode($5)
+  $$ = createFunctionNode($5, nil)
+}
+| FUNCTION LP identifiers RP LB statements RB
+{
+  $$ = createFunctionNode($6, &3)
 }
 | expr LP RP
 {
-  $$ = createCallNode($1)
+  $$ = createCallNode($1, nil)
+}
+| expr LP arguments RP
+{
+  $$ = createCallNode($1, &3)
 }
 %%

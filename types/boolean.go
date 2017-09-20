@@ -85,6 +85,6 @@ func (a BooleanValue) Compare(ctx *Context, b Value, strict bool) (int, bool, er
 	return na.Compare(ctx, b, false)
 }
 
-func (a BooleanValue) Call(ctx *Context) (Value, error) {
+func (a BooleanValue) Call(ctx *Context, arguments []Value) (Value, error) {
 	return nil, errors.New("not a function")
 }

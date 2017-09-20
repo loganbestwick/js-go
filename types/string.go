@@ -79,6 +79,6 @@ func (a StringValue) Compare(ctx *Context, b Value, strict bool) (int, bool, err
 	return na.Compare(ctx, b, false)
 }
 
-func (a StringValue) Call(ctx *Context) (Value, error) {
+func (a StringValue) Call(ctx *Context, arguments []Value) (Value, error) {
 	return nil, errors.New("not a function")
 }

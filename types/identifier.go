@@ -79,10 +79,10 @@ func (a IdentifierValue) Compare(ctx *Context, b Value, strict bool) (int, bool,
 	return aa.Compare(ctx, b, strict)
 }
 
-func (a IdentifierValue) Call(ctx *Context) (Value, error) {
+func (a IdentifierValue) Call(ctx *Context, arguments []Value) (Value, error) {
 	aa, err := ctx.Get(a.Value)
 	if err != nil {
 		return nil, err
 	}
-	return aa.Call(ctx)
+	return aa.Call(ctx, arguments)
 }

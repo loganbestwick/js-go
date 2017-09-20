@@ -48,7 +48,7 @@ type Value interface {
 	// Rules for assignment:
 	Assign(*Context, Value) (Value, error)
 
-	Call(*Context) (Value, error)
+	Call(*Context, []Value) (Value, error)
 
 	// Rules for Compare:
 	// Returns 0 if they are equal

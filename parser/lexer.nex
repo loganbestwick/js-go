@@ -4,6 +4,7 @@
 /while/                  { return WHILE }
 /function/               { return FUNCTION }
 /return/                 { return RETURN }
+/[,]/                    { return COMMA }
 /\(/                     { return LP }
 /\)/                     { return RP }
 /\{/                     { return LB }

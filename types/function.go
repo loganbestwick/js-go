@@ -24,6 +24,7 @@ func (e ErrReturn) Error() string {
 
 type FunctionValue struct {
 	Statements Evalable
+	Variables []IdentifierValue
 }
 
 func (a FunctionValue) ToString(ctx *Context) (string, error) {
@@ -67,18 +68,24 @@ func (a FunctionValue) Assign(ctx *Context, b Value) (Value, error) {
 }
 
 func (a FunctionValue) Compare(ctx *Context, b Value, strict bool) (int, bool, error) {
-	ab, err := b.ToActualValue(ctx)
-	if err != nil {
-		return 0, false, err
-	}
-	if a == ab {
-		return 0, false, nil
-	} else {
-		return 0, true, nil
-	}
+	//ab, err := b.ToActualValue(ctx)
+	//if err != nil {
+	//	return 0, false, err
+	//}
+	//if a == ab {
+	//	return 0, false, nil
+	//} else {
+	//	return 0, true, nil
+	//}
+	return 0, true, nil
 }
 
-func (a FunctionValue) Call(ctx *Context) (Value, error) {
+func (a FunctionValue) Call(ctx *Context, arguments []Value) (Value, error) {
 	functionCtx := &Context{}
+	for i, value := range arguments {
+		if i < len(a.Variables) {
+			a.Variables[i].Assign(functionCtx, value)
+		}
+	}
 	return a.Statements.Eval(functionCtx)
 }

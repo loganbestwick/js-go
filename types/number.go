@@ -105,6 +105,6 @@ func (a NumberValue) Compare(ctx *Context, b Value, strict bool) (int, bool, err
 	return cmp, false, nil
 }
 
-func (a NumberValue) Call(ctx *Context) (Value, error) {
+func (a NumberValue) Call(ctx *Context, arguments []Value) (Value, error) {
 	return nil, errors.New("not a function")
 }
