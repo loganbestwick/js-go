@@ -24,7 +24,7 @@ func (e ErrReturn) Error() string {
 
 type FunctionValue struct {
 	Statements Evalable
-	Variables []IdentifierValue
+	Variables  []string
 }
 
 func (a FunctionValue) ToString(ctx *Context) (string, error) {
@@ -84,7 +84,7 @@ func (a FunctionValue) Call(ctx *Context, arguments []Value) (Value, error) {
 	functionCtx := &Context{}
 	for i, value := range arguments {
 		if i < len(a.Variables) {
-			a.Variables[i].Assign(functionCtx, value)
+			functionCtx.Set(a.Variables[i], value)
 		}
 	}
 	return a.Statements.Eval(functionCtx)

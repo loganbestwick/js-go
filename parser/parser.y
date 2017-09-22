@@ -73,20 +73,20 @@ statement: expr END
 
 identifiers: IDENTIFIER
 {
-  $$ = $1
+  $$ = appendIdentifier(nil, $1)
 }
 | identifiers COMMA IDENTIFIER
 {
-  $$ = $1
+  $$ = appendIdentifier(&$1, $2)
 }
 
 arguments: expr
 {
-  $$ = $1
+  $$ = appendArgument(nil, $1)
 }
 | arguments COMMA expr
 {
-  $$ = $1
+  $$ = appendArgument(&$1, $2)
 }
 
 expr: BOOLEAN
@@ -122,7 +122,7 @@ expr: BOOLEAN
 }
 | FUNCTION LP identifiers RP LB statements RB
 {
-  $$ = createFunctionNode($6, &3)
+  $$ = createFunctionNode($6, &$3)
 }
 | expr LP RP
 {
@@ -130,6 +130,6 @@ expr: BOOLEAN
 }
 | expr LP arguments RP
 {
-  $$ = createCallNode($1, &3)
+  $$ = createCallNode($1, &$3)
 }
 %%

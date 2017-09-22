@@ -73,10 +73,17 @@ func createWhileNode(expr yySymType, statements yySymType) yySymType {
 	return yySymType{node: node}
 }
 
-func createFunctionNode(statements yySymType) yySymType {
+func createFunctionNode(statements yySymType, identifiers *yySymType) yySymType {
 	statementsNode := statements.node.(*syntax.StatementsNode)
 	node := syntax.FunctionNode{
 		Statements: statementsNode,
+	}
+	if identifiers != nil {
+		if identifiersNode, ok := identifiers.node.(*syntax.IdentifiersNode); ok {
+			node.ArgumentNames = identifiersNode.Identifiers
+		} else {
+			panic(fmt.Sprintf("not an identifiers node: %+v", identifiers.node))
+		}
 	}
 	return yySymType{node: node}
 }
@@ -88,9 +95,16 @@ func createReturnNode(expr yySymType) yySymType {
 	return yySymType{node: node}
 }
 
-func createCallNode(expr yySymType) yySymType {
+func createCallNode(expr yySymType, arguments *yySymType) yySymType {
 	node := syntax.CallNode{
 		Expression: expr.node,
+	}
+	if arguments != nil {
+		if argumentsNode, ok := arguments.node.(*syntax.ArgumentsNode); ok {
+			node.Arguments = argumentsNode.Arguments
+		} else {
+			panic(fmt.Sprintf("not an arguments node: %+v", arguments.node))
+		}
 	}
 	return yySymType{node: node}
 }
@@ -107,6 +121,36 @@ func appendStatement(statements *yySymType, statement yySymType) yySymType {
 		node = &syntax.StatementsNode{}
 	}
 	node.Append(statement.node)
+	return yySymType{node: node}
+}
+
+func appendIdentifier(identifiers *yySymType, identifier yySymType) yySymType {
+	var node *syntax.IdentifiersNode
+	if identifiers != nil {
+		if identifiersNode, ok := identifiers.node.(*syntax.IdentifiersNode); ok {
+			node = identifiersNode
+		} else {
+			panic(fmt.Sprintf("not an identifiers node: %+v", identifiers.node))
+		}
+	} else {
+		node = &syntax.IdentifiersNode{}
+	}
+	node.Append(identifier.s)
+	return yySymType{node: node}
+}
+
+func appendArgument(arguments *yySymType, argument yySymType) yySymType {
+	var node *syntax.ArgumentsNode
+	if arguments != nil {
+		if argumentsNode, ok := arguments.node.(*syntax.ArgumentsNode); ok {
+			node = argumentsNode
+		} else {
+			panic(fmt.Sprintf("not an arguments node: %+v", arguments.node))
+		}
+	} else {
+		node = &syntax.ArgumentsNode{}
+	}
+	node.Append(argument.node)
 	return yySymType{node: node}
 }
 

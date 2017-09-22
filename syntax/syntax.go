@@ -45,8 +45,20 @@ func (n StatementsNode) Eval(ctx *types.Context) (types.Value, error) {
 	return ret.ToActualValue(ctx)
 }
 
+type IdentifiersNode struct {
+	Identifiers []string
+}
+
+func (n *IdentifiersNode) Append(identifier string) {
+	n.Identifiers = append(n.Identifiers, identifier)
+}
+
+func (n IdentifiersNode) Eval(ctx *types.Context) (types.Value, error) {
+	return nil, nil
+}
+
 type FunctionNode struct {
-	Statements *StatementsNode
+	Statements    *StatementsNode
 	ArgumentNames []string
 }
 
@@ -73,7 +85,7 @@ func (n ReturnNode) Eval(ctx *types.Context) (types.Value, error) {
 
 type CallNode struct {
 	Expression Node
-	Arguments []Node
+	Arguments  []Node
 }
 
 func (n CallNode) Eval(ctx *types.Context) (types.Value, error) {
@@ -81,7 +93,31 @@ func (n CallNode) Eval(ctx *types.Context) (types.Value, error) {
 	if err != nil {
 		return nil, err
 	}
-	return expr.Call(ctx, n.Arguments)
+	values := []types.Value{}
+	for _, node := range n.Arguments {
+		expr, err := node.Eval(ctx)
+		if err != nil {
+			return nil, err
+		}
+		val, err := expr.ToActualValue(ctx)
+		if err != nil {
+			return nil, err
+		}
+		values = append(values, val)
+	}
+	return expr.Call(ctx, values)
+}
+
+type ArgumentsNode struct {
+	Arguments []Node
+}
+
+func (n *ArgumentsNode) Append(argument Node) {
+	n.Arguments = append(n.Arguments, argument)
+}
+
+func (n ArgumentsNode) Eval(ctx *types.Context) (types.Value, error) {
+	return nil, nil
 }
 
 type IfNode struct {
