@@ -13,6 +13,17 @@ func TestFunctions(t *testing.T) {
 		assertEval("x = function() { a = 1; return a; }; x();", intVal(1))
 		assertEval("x = function() { return 1; }; a = x(); a;", intVal(1))
 		assertEval("x = function(age) { return age; }; x(15);", intVal(15))
-		//assertEval("function x() { return 1; } x();", intVal(1))
+		assertEval("x = function(age) { return age; }; x(10 + 5);", intVal(15))
+
+		maxFunc := `
+		max = function(a, b) {
+			if (a > b) {
+				return a;
+			}
+			return b;
+		};
+		`
+		assertEval(maxFunc+"max(5, 10);", intVal(10))
+		assertEval(maxFunc+"max(10, 5);", intVal(10))
 	})
 }

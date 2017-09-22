@@ -105,7 +105,14 @@ func (n CallNode) Eval(ctx *types.Context) (types.Value, error) {
 		}
 		values = append(values, val)
 	}
-	return expr.Call(ctx, values)
+	_, err = expr.Call(ctx, values)
+	if err != nil {
+		if errReturn, ok := err.(types.ErrReturn); ok {
+			return errReturn.ReturnValue, nil
+		}
+		return nil, err
+	}
+	return nil, nil
 }
 
 type ArgumentsNode struct {

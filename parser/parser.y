@@ -77,7 +77,7 @@ identifiers: IDENTIFIER
 }
 | identifiers COMMA IDENTIFIER
 {
-  $$ = appendIdentifier(&$1, $2)
+  $$ = appendIdentifier(&$1, $3)
 }
 
 arguments: expr
@@ -86,7 +86,7 @@ arguments: expr
 }
 | arguments COMMA expr
 {
-  $$ = appendArgument(&$1, $2)
+  $$ = appendArgument(&$1, $3)
 }
 
 expr: BOOLEAN
