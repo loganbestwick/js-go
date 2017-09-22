@@ -25,5 +25,7 @@ func TestFunctions(t *testing.T) {
 		`
 		assertEval(maxFunc+"max(5, 10);", intVal(10))
 		assertEval(maxFunc+"max(10, 5);", intVal(10))
+		assertEval(maxFunc+"max(max(5, 10), 3);", intVal(10))
+		assertEval(maxFunc+"x = 10; max(x, x + 1);", intVal(11))
 	})
 }
