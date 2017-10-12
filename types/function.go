@@ -23,6 +23,7 @@ func (e ErrReturn) Error() string {
 }
 
 type FunctionValue struct {
+	FunctionContext *Context
 	Statements Evalable
 	Variables  []string
 }
@@ -81,11 +82,11 @@ func (a FunctionValue) Compare(ctx *Context, b Value, strict bool) (int, bool, e
 }
 
 func (a FunctionValue) Call(ctx *Context, arguments []Value) (Value, error) {
-	functionCtx := &Context{}
+	a.FunctionContext.SuperContext = ctx
 	for i, value := range arguments {
 		if i < len(a.Variables) {
-			functionCtx.Set(a.Variables[i], value)
+			a.FunctionContext.Set(a.Variables[i], value)
 		}
 	}
-	return a.Statements.Eval(functionCtx)
+	return a.Statements.Eval(a.FunctionContext)
 }

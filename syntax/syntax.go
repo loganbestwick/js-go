@@ -63,7 +63,7 @@ type FunctionNode struct {
 }
 
 func (n FunctionNode) Eval(ctx *types.Context) (types.Value, error) {
-	return types.FunctionValue{Statements: n.Statements, Variables: n.ArgumentNames}, nil
+	return types.FunctionValue{Statements: n.Statements, Variables: n.ArgumentNames, FunctionContext: ctx}, nil
 }
 
 type ReturnNode struct {
