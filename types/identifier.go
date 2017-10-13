@@ -3,11 +3,12 @@ package types
 var _ Value = IdentifierValue{}
 
 type IdentifierValue struct {
-	Value string
+	IdentifierContext *Context
+	Value             string
 }
 
 func (a IdentifierValue) ToString(ctx *Context) (string, error) {
-	aa, err := ctx.Get(a.Value)
+	aa, err := a.IdentifierContext.Get(a.Value)
 	if err != nil {
 		return "", err
 	}
@@ -15,7 +16,7 @@ func (a IdentifierValue) ToString(ctx *Context) (string, error) {
 }
 
 func (a IdentifierValue) ToActualValue(ctx *Context) (Value, error) {
-	aa, err := ctx.Get(a.Value)
+	aa, err := a.IdentifierContext.Get(a.Value)
 	if err != nil {
 		return nil, err
 	}
@@ -23,7 +24,7 @@ func (a IdentifierValue) ToActualValue(ctx *Context) (Value, error) {
 }
 
 func (a IdentifierValue) ToStringValue(ctx *Context) (StringValue, error) {
-	aa, err := ctx.Get(a.Value)
+	aa, err := a.IdentifierContext.Get(a.Value)
 	if err != nil {
 		return StringValue{}, err
 	}
@@ -31,7 +32,7 @@ func (a IdentifierValue) ToStringValue(ctx *Context) (StringValue, error) {
 }
 
 func (a IdentifierValue) ToNumberValue(ctx *Context) (NumberValue, error) {
-	aa, err := ctx.Get(a.Value)
+	aa, err := a.IdentifierContext.Get(a.Value)
 	if err != nil {
 		return NumberValue{}, err
 	}
@@ -39,7 +40,7 @@ func (a IdentifierValue) ToNumberValue(ctx *Context) (NumberValue, error) {
 }
 
 func (a IdentifierValue) ToBooleanValue(ctx *Context) (BooleanValue, error) {
-	aa, err := ctx.Get(a.Value)
+	aa, err := a.IdentifierContext.Get(a.Value)
 	if err != nil {
 		return BooleanValue{}, err
 	}
@@ -47,7 +48,7 @@ func (a IdentifierValue) ToBooleanValue(ctx *Context) (BooleanValue, error) {
 }
 
 func (a IdentifierValue) Add(ctx *Context, b Value) (Value, error) {
-	aa, err := ctx.Get(a.Value)
+	aa, err := a.IdentifierContext.Get(a.Value)
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +56,7 @@ func (a IdentifierValue) Add(ctx *Context, b Value) (Value, error) {
 }
 
 func (a IdentifierValue) Subtract(ctx *Context, b Value) (Value, error) {
-	aa, err := ctx.Get(a.Value)
+	aa, err := a.IdentifierContext.Get(a.Value)
 	if err != nil {
 		return nil, err
 	}
@@ -67,7 +68,7 @@ func (a IdentifierValue) Assign(ctx *Context, b Value) (Value, error) {
 	if err != nil {
 		return nil, err
 	}
-	ctx.Set(a.Value, ab)
+	a.IdentifierContext.Set(a.Value, ab)
 	return ab, nil
 }
 
@@ -80,7 +81,7 @@ func (a IdentifierValue) Compare(ctx *Context, b Value, strict bool) (int, bool,
 }
 
 func (a IdentifierValue) Call(ctx *Context, arguments []Value) (Value, error) {
-	aa, err := ctx.Get(a.Value)
+	aa, err := a.IdentifierContext.Get(a.Value)
 	if err != nil {
 		return nil, err
 	}

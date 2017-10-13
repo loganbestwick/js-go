@@ -14,12 +14,12 @@ List of features we intend to implement:
 * ~~Conditionals (if, if-else, maybe case)~~ DONE-ish (just if)
 * ~~Comparisons~~ DONE
 * ~~Looping statements~~ (while, for) DONE
-* Functions
-* Closures
+* ~~Functions~~ DONE
+* ~~Closures~~ DONE
+* Go interop
 * Javascript objects (and object notation)
 * Exceptions
 * Stacktraces (with line #s)
-* Go interop
 
 Maybe:
 

@@ -42,7 +42,10 @@ func (n StatementsNode) Eval(ctx *types.Context) (types.Value, error) {
 			return nil, err
 		}
 	}
-	return ret.ToActualValue(ctx)
+	if ret != nil {
+		return ret.ToActualValue(ctx)
+	}
+	return nil, nil
 }
 
 type IdentifiersNode struct {
@@ -282,7 +285,14 @@ type IdentifierNode struct {
 }
 
 func (i IdentifierNode) Eval(ctx *types.Context) (types.Value, error) {
-	return types.IdentifierValue{Value: i.Value}, nil
+	identifierCtx := ctx.FindContext(i.Value)
+	if identifierCtx == nil {
+		identifierCtx = ctx
+	}
+	return types.IdentifierValue{
+		Value:             i.Value,
+		IdentifierContext: identifierCtx,
+	}, nil
 }
 
 type BooleanNode struct {

@@ -5,8 +5,8 @@ import (
 )
 
 type Context struct {
-	Variables map[string]Value
-	SuperContext *Context
+	Variables     map[string]Value
+	ParentContext *Context
 }
 
 func (c *Context) Set(s string, v Value) Value {
@@ -24,12 +24,20 @@ func (c *Context) Set(s string, v Value) Value {
 func (c Context) Get(s string) (Value, error) {
 	v, ok := c.Variables[s]
 	if !ok {
-		if c.SuperContext != nil {
-			return c.SuperContext.Get(s)
-		}
 		return nil, errors.New("ReferenceError: " + s + " is not defined")
 	}
 	return v, nil
+}
+
+func (c Context) FindContext(s string) *Context {
+	_, ok := c.Variables[s]
+	if ok {
+		return &c
+	}
+	if c.ParentContext != nil {
+		return c.ParentContext.FindContext(s)
+	}
+	return nil
 }
 
 type Value interface {
