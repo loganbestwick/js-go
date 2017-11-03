@@ -7,10 +7,6 @@ clean:
 	-rm y.output
 
 gen: clean
-	go tool yacc -o=parser/parser.gen.go parser/parser.y
-	nex -o parser/lexer.gen.go parser/lexer.nex
-
-gen8: clean
 	goyacc -o=parser/parser.gen.go parser/parser.y
 	nex -o parser/lexer.gen.go parser/lexer.nex
 
@@ -21,7 +17,7 @@ fix:
 test:
 	go test ./...
 
-precommit: fix test
+precommit: gen fix test
 
 build: clean gen test
 	go build
