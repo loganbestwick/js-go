@@ -84,4 +84,86 @@ func TestOperators(t *testing.T) {
 		assertEval("x = y = z = 1;", intVal(1))
 		assertEval("x = true;", boolVal(true))
 	})
+
+	Convey("Equality", t, func() {
+		// Int tests
+		assertEval("1 === 1;", boolVal(true))
+		assertEval("1 === 2;", boolVal(false))
+		assertEval("1 + 1 === 3 - 2;", boolVal(false))
+
+		// String tests
+		assertEval("'dog' === 'dog';", boolVal(true))
+		assertEval("'dog' === 'cat';", boolVal(false))
+
+		// Bool tests
+		assertEval("true === true;", boolVal(true))
+		assertEval("true === false;", boolVal(false))
+
+		// NaN tests
+		assertEval("NaN === NaN;", boolVal(false))
+		assertEval("NaN === 'hi';", boolVal(false))
+
+		// Not strict
+		assertEval("1 == '1';", boolVal(true))
+		assertEval("1 == 'a';", boolVal(false))
+		assertEval("1 == true;", boolVal(true))
+		assertEval("true == 'true';", boolVal(false))
+		assertEval("true == '1';", boolVal(true))
+		assertEval("true == '2';", boolVal(false))
+		assertEval("x = 1; x == '1';", boolVal(true))
+	})
+
+	Convey("Inequality", t, func() {
+		// Int tests
+		assertEval("1 !== 1;", boolVal(false))
+		assertEval("1 !== 2;", boolVal(true))
+		assertEval("1 + 1 !== 3 - 2;", boolVal(true))
+
+		// String tests
+		assertEval("'dog' !== 'dog';", boolVal(false))
+		assertEval("'dog' !== 'cat';", boolVal(true))
+
+		// Bool tests
+		assertEval("true !== true;", boolVal(false))
+		assertEval("true !== false;", boolVal(true))
+
+		// NaN tests
+		assertEval("NaN !== NaN;", boolVal(true))
+		assertEval("NaN !== 'hi';", boolVal(true))
+
+		assertEval("1 != 2;", boolVal(true))
+		assertEval("NaN != NaN;", boolVal(true))
+	})
+
+	Convey("Compare", t, func() {
+		// Greater Than tests
+		assertEval("true > false;", boolVal(true))
+		assertEval("true > true;", boolVal(false))
+		assertEval("true + 1 > true;", boolVal(true))
+		assertEval("2 > 1;", boolVal(true))
+		assertEval("2 + 2 > 2 + 1;", boolVal(true))
+		assertEval("y = 2; x = 1; y > x;", boolVal(true))
+		assertEval("y = 2; x = 1; x > y;", boolVal(false))
+		assertEval("y = 2; x = 1; x + 2 > y;", boolVal(true))
+		assertEval("'z' > 'a';", boolVal(true))
+		assertEval("'a' > 'Z';", boolVal(true))
+		assertEval("'A' > '9';", boolVal(true))
+		assertEval("'9' > '-';", boolVal(true))
+		assertEval("'a' + 1 > 'a';", boolVal(true))
+
+		// Less Than tests
+		assertEval("true < false;", boolVal(false))
+		assertEval("1 < 2;", boolVal(true))
+		assertEval("'abc' < 'abd';", boolVal(true))
+
+		// Greater Than or Equal tests
+		assertEval("3 >= 2;", boolVal(true))
+		assertEval("2 >= 2;", boolVal(true))
+		assertEval("'a' >= 'a';", boolVal(true))
+
+		// Less Than or Equal tests
+		assertEval("1 <= 2;", boolVal(true))
+		assertEval("2 <= 2;", boolVal(true))
+		assertEval("'a' <= 'a';", boolVal(true))
+	})
 }

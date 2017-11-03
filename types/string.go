@@ -3,6 +3,7 @@ package types
 import (
 	"errors"
 	"strconv"
+	"strings"
 )
 
 var _ Value = StringValue{}
@@ -56,4 +57,28 @@ func (a StringValue) Subtract(ctx *Context, b Value) (Value, error) {
 
 func (a StringValue) Assign(ctx *Context, value Value) (Value, error) {
 	return nil, errors.New("ReferenceError: Invalid left-hand side in assignment")
+}
+
+func (a StringValue) Compare(ctx *Context, b Value, strict bool) (int, bool, error) {
+	ab, err := b.ToActualValue(ctx)
+	if err != nil {
+		return 0, false, err
+	}
+	if strict {
+		if _, ok := ab.(StringValue); !ok {
+			return 0, true, nil
+		}
+	}
+	if sb, ok := ab.(StringValue); ok {
+		return strings.Compare(a.Value, sb.Value), false, nil
+	}
+	na, err := a.ToNumberValue(ctx)
+	if err != nil {
+		return 0, false, err
+	}
+	return na.Compare(ctx, b, false)
+}
+
+func (a StringValue) Call(ctx *Context, arguments []Value) (Value, error) {
+	return nil, errors.New("not a function")
 }

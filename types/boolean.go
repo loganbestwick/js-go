@@ -67,3 +67,24 @@ func (a BooleanValue) Subtract(ctx *Context, b Value) (Value, error) {
 func (a BooleanValue) Assign(ctx *Context, b Value) (Value, error) {
 	return nil, errors.New("ReferenceError: Invalid left-hand side in assignment")
 }
+
+func (a BooleanValue) Compare(ctx *Context, b Value, strict bool) (int, bool, error) {
+	if strict {
+		ab, err := b.ToActualValue(ctx)
+		if err != nil {
+			return 0, false, err
+		}
+		if _, ok := ab.(BooleanValue); !ok {
+			return 0, true, nil
+		}
+	}
+	na, err := a.ToNumberValue(ctx)
+	if err != nil {
+		return 0, false, err
+	}
+	return na.Compare(ctx, b, false)
+}
+
+func (a BooleanValue) Call(ctx *Context, arguments []Value) (Value, error) {
+	return nil, errors.New("not a function")
+}

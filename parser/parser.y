@@ -13,17 +13,27 @@ import "github.com/loganbestwick/js-go/syntax"
 %token NUMBER
 %token STRING
 %token IDENTIFIER
-%token BINARY_OPERATOR
+%token BIN_OP_1
+%token BIN_OP_2
 %token ASSIGNMENT
 %token END
 %token IF
+%token FOR
+%token WHILE
+%token FUNCTION
+%token RETURN
+
 %token LP
 %token RP
 %token LB
 %token RB
+%token COMMA
 
 %right ASSIGNMENT
-%left BINARY_OPERATOR
+%left BIN_OP_1
+%left BIN_OP_2
+%left LP
+%left RP
 
 %%
 program: statements
@@ -48,6 +58,36 @@ statement: expr END
 {
   $$ = createIfNode($3, $6)
 }
+| FOR LP statement statement expr RP LB statements RB
+{
+  $$ = createForNode($3, $4, $5, $8)
+}
+| WHILE LP expr RP LB statements RB
+{
+  $$ = createWhileNode($3, $6)
+}
+| RETURN expr END
+{
+  $$ = createReturnNode($2)
+}
+
+identifiers: IDENTIFIER
+{
+  $$ = appendIdentifier(nil, $1)
+}
+| identifiers COMMA IDENTIFIER
+{
+  $$ = appendIdentifier(&$1, $3)
+}
+
+arguments: expr
+{
+  $$ = appendArgument(nil, $1)
+}
+| arguments COMMA expr
+{
+  $$ = appendArgument(&$1, $3)
+}
 
 expr: BOOLEAN
 {
@@ -64,12 +104,32 @@ expr: BOOLEAN
 {
   $$ = createIdentifierNode($1)
 }
-| expr BINARY_OPERATOR expr
+| expr BIN_OP_2 expr
+{
+  $$ = createBinaryOpNode($2, $1, $3)
+}
+| expr BIN_OP_1 expr
 {
   $$ = createBinaryOpNode($2, $1, $3)
 }
 | expr ASSIGNMENT expr
 {
   $$ = createBinaryOpNode($2, $1, $3)
+}
+| FUNCTION LP RP LB statements RB
+{
+  $$ = createFunctionNode($5, nil)
+}
+| FUNCTION LP identifiers RP LB statements RB
+{
+  $$ = createFunctionNode($6, &$3)
+}
+| expr LP RP
+{
+  $$ = createCallNode($1, nil)
+}
+| expr LP arguments RP
+{
+  $$ = createCallNode($1, &$3)
 }
 %%

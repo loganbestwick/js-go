@@ -5,7 +5,8 @@ import (
 )
 
 type Context struct {
-	Variables map[string]Value
+	Variables     map[string]Value
+	ParentContext *Context
 }
 
 func (c *Context) Set(s string, v Value) Value {
@@ -28,6 +29,17 @@ func (c Context) Get(s string) (Value, error) {
 	return v, nil
 }
 
+func (c Context) FindContext(s string) *Context {
+	_, ok := c.Variables[s]
+	if ok {
+		return &c
+	}
+	if c.ParentContext != nil {
+		return c.ParentContext.FindContext(s)
+	}
+	return nil
+}
+
 type Value interface {
 	ToString(*Context) (string, error)
 
@@ -47,4 +59,12 @@ type Value interface {
 
 	// Rules for assignment:
 	Assign(*Context, Value) (Value, error)
+
+	Call(*Context, []Value) (Value, error)
+
+	// Rules for Compare:
+	// Returns 0 if they are equal
+	// Returns >0 if this value is > passed-in value
+	// Returns <0 if this value is < passed-in value
+	Compare(*Context, Value, bool) (int, bool, error)
 }

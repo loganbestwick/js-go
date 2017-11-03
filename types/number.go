@@ -78,3 +78,33 @@ func (a NumberValue) Subtract(ctx *Context, b Value) (Value, error) {
 func (a NumberValue) Assign(ctx *Context, value Value) (Value, error) {
 	return nil, errors.New("ReferenceError: Invalid left-hand side in assignment")
 }
+
+func (a NumberValue) Compare(ctx *Context, b Value, strict bool) (int, bool, error) {
+	if strict {
+		ab, err := b.ToActualValue(ctx)
+		if err != nil {
+			return 0, false, err
+		}
+		if _, ok := ab.(NumberValue); !ok {
+			return 0, true, nil
+		}
+	}
+	nb, err := b.ToNumberValue(ctx)
+	if err != nil {
+		return 0, false, err
+	}
+	if a.NaN || nb.NaN {
+		return 0, true, nil
+	}
+	cmp := 0
+	if a.Value > nb.Value {
+		cmp = 1
+	} else if a.Value < nb.Value {
+		cmp = -1
+	}
+	return cmp, false, nil
+}
+
+func (a NumberValue) Call(ctx *Context, arguments []Value) (Value, error) {
+	return nil, errors.New("not a function")
+}

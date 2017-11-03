@@ -8,9 +8,17 @@ import (
 )
 
 const (
-	ADD_OP        = "+"
-	SUBTRACT_OP   = "-"
-	ASSIGNMENT_OP = "="
+	ADD_OP                   = "+"
+	SUBTRACT_OP              = "-"
+	ASSIGNMENT_OP            = "="
+	GREATER_THAN_OP          = ">"
+	LESS_THAN_OP             = "<"
+	GREATER_THAN_OR_EQUAL_OP = ">="
+	LESS_THAN_OR_EQUAL_OP    = "<="
+	EQUALITY_OP              = "=="
+	INEQUALITY_OP            = "!="
+	EQUALITY_OP_STRICT       = "==="
+	INEQUALITY_OP_STRICT     = "!=="
 )
 
 type Node interface {
@@ -34,15 +42,100 @@ func (n StatementsNode) Eval(ctx *types.Context) (types.Value, error) {
 			return nil, err
 		}
 	}
-	return ret.ToActualValue(ctx)
+	if ret != nil {
+		return ret.ToActualValue(ctx)
+	}
+	return nil, nil
 }
 
-type ConditionalNode struct {
+type IdentifiersNode struct {
+	Identifiers []string
+}
+
+func (n *IdentifiersNode) Append(identifier string) {
+	n.Identifiers = append(n.Identifiers, identifier)
+}
+
+func (n IdentifiersNode) Eval(ctx *types.Context) (types.Value, error) {
+	return nil, nil
+}
+
+type FunctionNode struct {
+	Statements    *StatementsNode
+	ArgumentNames []string
+}
+
+func (n FunctionNode) Eval(ctx *types.Context) (types.Value, error) {
+	return types.FunctionValue{Statements: n.Statements, Variables: n.ArgumentNames, FunctionContext: ctx}, nil
+}
+
+type ReturnNode struct {
+	Expression Node
+}
+
+func (n ReturnNode) Eval(ctx *types.Context) (types.Value, error) {
+	expr, err := n.Expression.Eval(ctx)
+	if err != nil {
+		return nil, err
+	}
+	val, err := expr.ToActualValue(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return nil, types.ErrReturn{ReturnValue: val}
+
+}
+
+type CallNode struct {
+	Expression Node
+	Arguments  []Node
+}
+
+func (n CallNode) Eval(ctx *types.Context) (types.Value, error) {
+	expr, err := n.Expression.Eval(ctx)
+	if err != nil {
+		return nil, err
+	}
+	values := []types.Value{}
+	for _, node := range n.Arguments {
+		expr, err := node.Eval(ctx)
+		if err != nil {
+			return nil, err
+		}
+		val, err := expr.ToActualValue(ctx)
+		if err != nil {
+			return nil, err
+		}
+		values = append(values, val)
+	}
+	_, err = expr.Call(ctx, values)
+	if err != nil {
+		if errReturn, ok := err.(types.ErrReturn); ok {
+			return errReturn.ReturnValue, nil
+		}
+		return nil, err
+	}
+	return nil, nil
+}
+
+type ArgumentsNode struct {
+	Arguments []Node
+}
+
+func (n *ArgumentsNode) Append(argument Node) {
+	n.Arguments = append(n.Arguments, argument)
+}
+
+func (n ArgumentsNode) Eval(ctx *types.Context) (types.Value, error) {
+	return nil, nil
+}
+
+type IfNode struct {
 	Expression Node
 	Statements *StatementsNode
 }
 
-func (n ConditionalNode) Eval(ctx *types.Context) (types.Value, error) {
+func (n IfNode) Eval(ctx *types.Context) (types.Value, error) {
 	expr, err := n.Expression.Eval(ctx)
 	if err != nil {
 		return nil, err
@@ -55,6 +148,72 @@ func (n ConditionalNode) Eval(ctx *types.Context) (types.Value, error) {
 		return n.Statements.Eval(ctx)
 	}
 	return nil, nil
+}
+
+type ForNode struct {
+	InitExpression Node
+	Condition      Node
+	LoopExpression Node
+	Statements     *StatementsNode
+}
+
+func (n ForNode) Eval(ctx *types.Context) (types.Value, error) {
+	var lastVal types.Value
+	_, err := n.InitExpression.Eval(ctx)
+	if err != nil {
+		return nil, err
+	}
+	loop := true
+	for loop {
+		val, err := n.Condition.Eval(ctx)
+		if err != nil {
+			return nil, err
+		}
+		boolVal, err := val.ToBooleanValue(ctx)
+		if err != nil {
+			return nil, err
+		}
+		loop = boolVal.Value
+		if loop {
+			lastVal, err = n.Statements.Eval(ctx)
+			if err != nil {
+				return nil, err
+			}
+			_, err := n.LoopExpression.Eval(ctx)
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+	return lastVal, nil
+}
+
+type WhileNode struct {
+	Expression Node
+	Statements *StatementsNode
+}
+
+func (n WhileNode) Eval(ctx *types.Context) (types.Value, error) {
+	var lastVal types.Value
+	loop := true
+	for loop {
+		val, err := n.Expression.Eval(ctx)
+		if err != nil {
+			return nil, err
+		}
+		boolVal, err := val.ToBooleanValue(ctx)
+		if err != nil {
+			return nil, err
+		}
+		loop = boolVal.Value
+		if loop {
+			lastVal, err = n.Statements.Eval(ctx)
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+	return lastVal, nil
 }
 
 type BinaryOpNode struct {
@@ -79,9 +238,46 @@ func (n BinaryOpNode) Eval(ctx *types.Context) (types.Value, error) {
 		return lv.Subtract(ctx, rv)
 	case ASSIGNMENT_OP:
 		return lv.Assign(ctx, rv)
+	case EQUALITY_OP:
+		return comp(ctx, lv, rv, false, false, 0)
+	case INEQUALITY_OP:
+		return comp(ctx, lv, rv, false, true, 0)
+	case EQUALITY_OP_STRICT:
+		return comp(ctx, lv, rv, true, false, 0)
+	case INEQUALITY_OP_STRICT:
+		return comp(ctx, lv, rv, true, true, 0)
+	case GREATER_THAN_OP:
+		return comp(ctx, lv, rv, false, false, 1)
+	case GREATER_THAN_OR_EQUAL_OP:
+		return comp(ctx, lv, rv, false, false, 0, 1)
+	case LESS_THAN_OP:
+		return comp(ctx, lv, rv, false, false, -1)
+	case LESS_THAN_OR_EQUAL_OP:
+		return comp(ctx, lv, rv, false, false, -1, 0)
 	default:
 		return nil, fmt.Errorf("operator %s not recognized", n.Operator)
 	}
+}
+
+func comp(ctx *types.Context, lv types.Value, rv types.Value, strict bool, invert bool, expect ...int) (types.Value, error) {
+	cmp, forceFalse, err := lv.Compare(ctx, rv, strict)
+	if err != nil {
+		return nil, err
+	}
+	if forceFalse {
+		if invert {
+			return types.BooleanValue{Value: true}, nil
+		} else {
+			return types.BooleanValue{Value: false}, nil
+		}
+	}
+	successValue := !invert
+	for _, val := range expect {
+		if val == cmp {
+			return types.BooleanValue{Value: successValue}, nil
+		}
+	}
+	return types.BooleanValue{Value: !successValue}, nil
 }
 
 type IdentifierNode struct {
@@ -89,7 +285,14 @@ type IdentifierNode struct {
 }
 
 func (i IdentifierNode) Eval(ctx *types.Context) (types.Value, error) {
-	return types.IdentifierValue{Value: i.Value}, nil
+	identifierCtx := ctx.FindContext(i.Value)
+	if identifierCtx == nil {
+		identifierCtx = ctx
+	}
+	return types.IdentifierValue{
+		Value:             i.Value,
+		IdentifierContext: identifierCtx,
+	}, nil
 }
 
 type BooleanNode struct {
