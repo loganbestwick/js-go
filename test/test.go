@@ -56,6 +56,10 @@ func testEval(ctx *types.Context, code string) (types.Value, error) {
 
 func assertEval(code string, value types.Value) {
 	ctx := &types.Context{}
+	assertEvalWithContext(ctx, code, value)
+}
+
+func assertEvalWithContext(ctx *types.Context, code string, value types.Value) {
 	val, _ := value.ToString(ctx)
 	Convey(collapseCode(code)+" = "+val, func() {
 		result, err := testEval(ctx, code)
